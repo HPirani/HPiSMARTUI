@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:viewmodel=" clr-namespace:HPISMARTUI.ViewModel"
+    x:DataType="viewmodel:MainViewModel"
+    xmlns:model=" clr-namespace:HPISMARTUI.Model"
+    xmlns:serial="clr-namespace:Hoho.Android.UsbSerial.Driver;assembly=Android.UsbSerial"
+    xmlns:circularGage="clr-namespace:HPiCircularGauge;assembly=HPiCircularGauge"
+    x:Class="HPISMARTUI.View.MainPage"
+  
+    Title="HPUIMain">
+       <!--x:DataType="viewmodel:MainViewModel"-->
+    <ContentPage.Resources>
+        <Style
+            TargetType="Label">
+            <Setter
+                Property="VerticalOptions"
+                Value="CenterAndExpand" />
+        </Style>
+    </ContentPage.Resources>
+    <Grid>
+        <Image
+            Aspect="AspectFill"
+            Source="{Binding  BackgroundSource}">
+            
+        </Image>
+        <Grid>
+            <VerticalStackLayout
+                Spacing="25"
+                Padding="30,0"
+                VerticalOptions="Center">
+                <Image>
+                           <Image.Source>
+                    <FontImageSource
+                        Color="{Binding Estate.SmallLightColor}"
+                        Glyph="&#xE021;"
+                        FontFamily="HPiSigns"
+                        Size="94"></FontImageSource>
+                    </Image.Source>
+                </Image>
+                <Label
+                    Text="Hello There!"
+                    SemanticProperties.HeadingLevel="Level1"
+                    FontSize="32"
+                    HorizontalOptions="Center" />
+                <Entry
+                    Text="{Binding SendData, Mode=TwoWay}" />
+                <Button
+                    Command="{Binding SendCommand}" />
+                <Slider
+                    x:Name="ValueSlider"
+                    WidthRequest="250"
+                    HorizontalOptions="Center"
+                    Minimum="0.0"
+                    Maximum="100.0"
+                    Value="40.0" />
+                <HorizontalStackLayout
+                    Spacing="25"
+                    Padding="30,0"
+                    VerticalOptions="Center">
+                    <!--RPM Metter-->
+                    <circularGage:CircularGauge
+                        WidthRequest="250"
+                        HeightRequest="250"
+                        Value="{Binding Value, Source={x:Reference ValueSlider}}"
+                        StartAngle="00.0"
+                        SweepAngle="340.0"
+                        GaugeWidth="25.0"
+                        MinValue="0.0"
+                        MaxValue="100.0"
+                        NeedleLength="125.0"
+                        NeedleWidth="10.0"
+                        NeedleOffset="20.0"
+                        BaseWidth="25.0"
+                        BaseStrokeWidth="4.0"
+                        ScaleLength="8.0"
+                        ScaleDistance="4.0"
+                        ScaleThickness="3.0"
+                        ScaleUnits="10"
+                        GaugeColor="Red"
+                        NeedleColor="Firebrick"
+                        BaseColor="Black"
+                        BaseStrokeColor="DarkRed"
+                        TranslationY="-100"
+                        TranslationX="50"
+                        ScaleColor="LightGray">
+                        <circularGage:CircularGauge.GaugeGradientColors>
+                            <Color>DarkGreen</Color>
+                            <Color>DarkGreen</Color>
+                            <Color>DarkGreen</Color>
+                            <Color>YellowGreen</Color>
+                            <Color>Yellow</Color>
+                            <Color>Yellow</Color>
+                            <Color>OrangeRed</Color>
+                            <Color>DarkRed</Color>
+                            <Color>DarkRed</Color>
+                        </circularGage:CircularGauge.GaugeGradientColors>
+                    </circularGage:CircularGauge>
+                    <!--SPEEDoMETER-->
+                    <HorizontalStackLayout
+                        Spacing="25"
+                        Padding="30,0"
+                        VerticalOptions="Center">
+                        <circularGage:CircularGauge
+                            WidthRequest="250"
+                            HeightRequest="250"
+                            Value="{Binding Value, Source={x:Reference ValueSlider}}"
+                            StartAngle="00.0"
+                            SweepAngle="340.0"
+                            GaugeWidth="25.0"
+                            MinValue="0.0"
+                            MaxValue="100.0"
+                            NeedleLength="125.0"
+                            NeedleWidth="10.0"
+                            NeedleOffset="20.0"
+                            BaseWidth="25.0"
+                            BaseStrokeWidth="4.0"
+                            ScaleLength="8.0"
+                            ScaleDistance="4.0"
+                            ScaleThickness="3.0"
+                            ScaleUnits="10"
+                            GaugeColor="Red"
+                            NeedleColor="Firebrick"
+                            BaseColor="Black"
+                            BaseStrokeColor="DarkRed"
+                            ScaleColor="LightGray"
+                            TranslationX="-150"
+                            TranslationY="-100">
+                            <circularGage:CircularGauge.GaugeGradientColors>
+                                <Color>DarkGreen</Color>
+                                <Color>DarkGreen</Color>
+                                <Color>DarkGreen</Color>
+                                <Color>YellowGreen</Color>
+                                <Color>Yellow</Color>
+                                <Color>Yellow</Color>
+                                <Color>OrangeRed</Color>
+                                <Color>DarkRed</Color>
+                                <Color>DarkRed</Color>
+                            </circularGage:CircularGauge.GaugeGradientColors>
+                        </circularGage:CircularGauge>
+                    </HorizontalStackLayout>
+                    
+                    <!--Gauge Backgrounds-->
+                    <Grid>
+                        <VerticalStackLayout
+                            Spacing="15"
+                            Padding="5,0"
+                            VerticalOptions="Center"
+                            HorizontalOptions="End">
+                            <Image
+                                TranslationX="200"
+                                TranslationY="-50">
+                                <Image.Source>
+                                    <FontImageSource
+                                        Color="{Binding Estate.SmallLightColor}"
+                                        Glyph="&#xE020;"
+                                        FontFamily="HPiSigns"
+                                        Size="94">
+                                        
+                                    </FontImageSource>
+                                </Image.Source> 
+                       
+                                <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding SmallLightCommand}"
+                                    NumberOfTapsRequired="1" />
+                                </Image.GestureRecognizers>
+                            </Image>
+                        </VerticalStackLayout>
+                    </Grid>
+                </HorizontalStackLayout>
+                
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+    
+</ContentPage>
