@@ -37,10 +37,13 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
 	  <Optimize>False</Optimize>
+	  <ApplicationId>ir.hpi.smartui</ApplicationId>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android|AnyCPU'">
 	  <Optimize>True</Optimize>
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	  <ApplicationId>ir.hpi.smartui</ApplicationId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -66,6 +69,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Platforms\Android\AndroidManifest - Copy.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="6.1.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="8.0.0" />
@@ -75,6 +82,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\src\epj.RadialDial.Maui\epj.RadialDial.Maui.csproj" />
 	  <ProjectReference Include="..\src\HPiCircularGauge\HPiCircularGauge.csproj" />
 	</ItemGroup>
 

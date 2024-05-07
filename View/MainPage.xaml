@@ -8,6 +8,7 @@
     xmlns:model=" clr-namespace:HPISMARTUI.Model"
     xmlns:serial="clr-namespace:Hoho.Android.UsbSerial.Driver;assembly=Android.UsbSerial"
     xmlns:circularGage="clr-namespace:HPiCircularGauge;assembly=HPiCircularGauge"
+    xmlns:radialDial="clr-namespace:epj.RadialDial.Maui;assembly=epj.RadialDial.Maui"
     x:Class="HPISMARTUI.View.MainPage"
   
     Title="HPUIMain">
@@ -26,6 +27,7 @@
             Source="{Binding  BackgroundSource}">
             
         </Image>
+        <ScrollView>
         <Grid>
             <VerticalStackLayout
                 Spacing="25"
@@ -41,15 +43,44 @@
                     </Image.Source>
                 </Image>
                 <Label
-                    Text="Hello There!"
+                    Text="Hello From Hosein Pirani!"
                     SemanticProperties.HeadingLevel="Level1"
                     FontSize="32"
+                    TextColor="LightPink"
                     HorizontalOptions="Center" />
+                <!--Bellow Control Created For Test Only.-->
+                
+                <Entry Text="{Binding SendData, Mode=TwoWay}" TextColor="AliceBlue">
+                    <!--<Entry.Behaviors>
+                        <toolkit:EventToCommandBehavior
+                            EventName="TextChanged"
+                            Command="{Binding SendEntryValueCommand}"></toolkit:EventToCommandBehavior>
+                    </Entry.Behaviors>-->
+                    
+                    
+                </Entry>
+                
                 <Entry
-                    Text="{Binding SendData, Mode=TwoWay}" />
+                    Text="{Binding SmsMessage, Mode=TwoWay}" TextColor="LightSeaGreen"
+                />
+                
                 <Button
-                    Command="{Binding SendCommand}" />
-                <Slider
+                    Command="{Binding SendCommand}"
+                    CommandParameter="{Binding SendData, Mode=OneWay}" TextColor="AliceBlue" 
+                />
+                <Button
+                    Command="{Binding SMSCommand}"
+                    Text="Send SMS"
+                    TextColor="AntiqueWhite"
+                />
+                <Label
+                    Text="{Binding DeviceLocation}" TextColor="Aquamarine"
+                />
+                <Button 
+                    Text="GetLocation"
+                    Command="{Binding GetLastLocationCommand}"
+                />
+                    <Slider
                     x:Name="ValueSlider"
                     WidthRequest="250"
                     HorizontalOptions="Center"
@@ -61,7 +92,7 @@
                     Padding="30,0"
                     VerticalOptions="Center">
                     <!--RPM Metter-->
-                    <circularGage:CircularGauge
+                    <!--<circularGage:CircularGauge
                         WidthRequest="250"
                         HeightRequest="250"
                         Value="{Binding Value, Source={x:Reference ValueSlider}}"
@@ -97,7 +128,34 @@
                             <Color>DarkRed</Color>
                             <Color>DarkRed</Color>
                         </circularGage:CircularGauge.GaugeGradientColors>
-                    </circularGage:CircularGauge>
+                    </circularGage:CircularGauge>-->
+     
+                    <radialDial:RadialDial
+                        x:Name="RadialControlControl"
+                        VerticalOptions="Center"
+                        WidthRequest="250"
+                        HeightRequest="250"
+                        TouchInputEnabled="True"
+                        DialWidth="{Binding Value, Source={x:Reference ValueSlider}}"
+                        DialColor="SeaGreen"
+                        BaseColor="LightSkyBlue"
+                        Min="0"
+                        Max="60"
+                        ShowScale="True"
+                        InternalPadding="10"
+                        ScaleDistance="10"
+                        ScaleLength="24"
+                        ScaleThickness="8"
+                        ScaleUnits="5"
+                        UseGradient="True"
+                        IgnorePixelScaling="False">
+                        <radialDial:RadialDial.GradientColors>
+                            <Color>DarkGreen</Color>
+                            <Color>YellowGreen</Color>
+                            <Color>Yellow</Color>
+                            <Color>OrangeRed</Color>
+                        </radialDial:RadialDial.GradientColors>
+                    </radialDial:RadialDial>
                     <!--SPEEDoMETER-->
                     <HorizontalStackLayout
                         Spacing="25"
@@ -174,6 +232,7 @@
                 
             </VerticalStackLayout>
         </Grid>
+        </ScrollView>
     </Grid>
     
 </ContentPage>

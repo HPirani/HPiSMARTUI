@@ -23,23 +23,39 @@
 
 
 using System;
+
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Android.App;
+using Android.OS;
+using Android.Provider;
 using Android.Util;
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 
 using Google.Android.Material.Internal;
+using GoogleGson;
+
+
+using HPISMARTUI.Model;
+using HPISMARTUI.Messages;
+using Java.Lang;
+
+using Microsoft.Maui.Controls.PlatformConfiguration;
+
+
 
 namespace HPISMARTUI.Model
 {
     
     public partial class ENGINEstate : ObservableObject
     {
+      
         
         [ObservableProperty]
         private int temergencyInterval = 15;
@@ -47,6 +63,17 @@ namespace HPISMARTUI.Model
 
         public ENGINEstate()
         {
+            WeakReferenceMessenger.Default
+ .Register<ENGINEstate, Messages.EngineState_HeadLightMessage>(this,
+  (recipient, message) =>
+ {
+
+
+         recipient.IsHeadLight_Enabled = message.Value;
+     Log.Debug("Messenger", "Received HeadlightMessage!");
+     
+ });
+
 
         }
 
@@ -126,14 +153,14 @@ namespace HPISMARTUI.Model
             }
         }
 
+        
 
-
-
-
+       
 
         
 
     }
+
 
 
 
