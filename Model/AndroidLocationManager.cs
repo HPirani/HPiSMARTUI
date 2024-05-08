@@ -38,10 +38,6 @@ namespace HPISMARTUI.Model
         private string currentLocation;
         [ObservableProperty]
         int accuracy = (int)GeolocationAccuracy.Default;
-        [ObservableProperty]
-        public string listeningLocation;
-        [ObservableProperty]
-        public string listeningLocationStatus;
         ////////////////////////////////////////////
         //Bike Speed Retrived From GPS;
         //Send To UI via WeakReferenceMessenger.Or Directly Via Xaml Binding.
@@ -120,7 +116,7 @@ namespace HPISMARTUI.Model
         }
 
 
-        async void GetDeviceLocation()
+      public  async  Task GetDeviceLocation()
         {
             var actualLoc = await Get_CurrentLocation();
             if (actualLoc != LResult.Success)

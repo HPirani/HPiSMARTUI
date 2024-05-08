@@ -128,7 +128,7 @@ namespace HPISMARTUI.ViewModel
         //GPS Location
         [ObservableProperty]
         private String deviceLocation;
-        private int GpsUpdate_TimerInterval = 3;
+        private int GpsUpdate_TimerInterval = 3; //TODO: Set Currect Value. 
         System.Timers.Timer TimerGps;
 
 
@@ -397,13 +397,13 @@ namespace HPISMARTUI.ViewModel
         }
 
         [RelayCommand]
-        public async  void GetLastLocation()
+        public async  Task GetLastLocation()
         {
             //WeakReferenceMessenger.Default.Send(new Messages.EngineState_HeadLightMessage(true));
-           // await aLocationManager.GetLastLocation();
-          //  Get_LastLocation();
-         //   await Task.Delay(TimeSpan.FromSeconds(5));
-            Get_CurrentLocation();
+            // await aLocationManager.GetLastLocation();
+            //  Get_LastLocation();
+            //   await Task.Delay(TimeSpan.FromSeconds(5));
+            await aLocationManager.GetDeviceLocation();
             
             
         }
