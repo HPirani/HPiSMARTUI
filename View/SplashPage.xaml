@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:viewmodel=" clr-namespace:HPISMARTUI.ViewModel"
+             x:DataType="viewmodel:SplashViewModel"
+    x:Class="HPISMARTUI.View.SplashPage"
+             
+             Title="Splash">
+    <VerticalStackLayout BackgroundColor="#171717">
+        <Grid>
+            
+        <Label 
+            HorizontalOptions="Center"
+            
+            TranslationY="120"
+         x:Name="Besmellah"
+            IsVisible="{Binding BesmellahVisible}"
+            TextColor="#6ab9a5"
+            FontSize="220"
+                Text="{Binding BesmellahStyle}"
+                FontFamily="{Binding BesmellahFont}"/>
+            <VerticalStackLayout>
+                <toolkit:MediaElement         
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+                    TranslationY="-080"
+                    ShouldLoopPlayback="False"
+                    Aspect="AspectFill"
+                    IsVisible="{Binding VideoPlayerVisible}"
+            x:Name="SplashVideoPlayer"
+            Source="embed://SplashVideo.mp4"
+            ShouldAutoPlay="true"
+            ShouldKeepScreenOn="True"
+            BackgroundColor="#171717"
+            ShouldShowPlaybackControls="False">
+            <toolkit:MediaElement.Behaviors>
+                <toolkit:EventToCommandBehavior
+                    EventName="MediaEnded"
+                    Command="{Binding MediaEndedCommand}" />
+                <toolkit:EventToCommandBehavior
+                    EventName="MediaFailed"
+                    Command="{Binding MediaFailedCommand}" />
+            </toolkit:MediaElement.Behaviors>
+                
+        </toolkit:MediaElement>
+        </VerticalStackLayout>
+            
+        </Grid>
+    </VerticalStackLayout>
+</ContentPage>

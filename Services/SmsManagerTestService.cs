@@ -50,7 +50,7 @@ namespace HPISMARTUI.Services
             }
         }
 
-        async void Timer_Elapsed(object state)
+        /*async*/ void Timer_Elapsed(object state)
         {
             AndroidServiceManager.IsRunning = true;
 
@@ -121,7 +121,8 @@ namespace HPISMARTUI.Services
                 Intent intent = (Intent)intents;
         try
         {
-            Thread.Sleep(5000);
+                    Log.Debug("DoInBackground", "Sleeping...");
+                    Thread.Sleep(5000);
         }
         catch (InterruptedException e)
         {

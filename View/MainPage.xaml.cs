@@ -71,13 +71,9 @@ namespace HPISMARTUI.View
         
         private static int REQUEST_PERMISSION_READ_STATE = 1;
 
-        public IEnumerable<string> ListAssets(string subfolder)
-        {
-            AssetManager assets = Platform.AppContext.Assets;
-            string[] files = assets.List(subfolder);
-            return files;
-        }
-        
+
+
+
 
         public MainPage( MainViewModel viewModel)
         {
@@ -102,7 +98,7 @@ namespace HPISMARTUI.View
                     Manifest.Permission.SendSms}, REQUEST_PERMISSION_READ_STATE);
             } else
             {
-                await Shell.Current.DisplayAlert("SMS Permission","Granted","OK");
+               // await Shell.Current.DisplayAlert("SMS Permission","Granted","OK");
 
                 vm.mIsReadPhoneStateGranted = true;
             }
@@ -128,6 +124,18 @@ namespace HPISMARTUI.View
             AndroidPlatform.CurrentActivity.BaseContext.StopService(new Intent(AndroidPlatform.CurrentActivity.BaseContext, typeof(SmsManagerTestService)));
         }
 
+        protected override  bool OnBackButtonPressed()
+        {
+            
+            var uaction = Shell.Current.DisplayPromptAsync("Exit", "Exit?", "Yes", "No");
+            if (uaction.Result.Equals("Yes"))
+            {
+                //System.Environment.Exit(0);
+                App.Current.Quit();
+            }
+            base.OnBackButtonPressed();
+            return true;
+        }
 
 
     }

@@ -14,15 +14,18 @@ using Microsoft.Maui.Platform;
 using Kotlin;
 using HPISMARTUI.ViewModel;
 using AndroidX.Core.Content;
+using Android.Views;
 //using var vm =Microsoft.Maui.  ;
 //using Android.Telephony.Ims;
 //using Android.Telephony.Gsm;
 namespace HPISMARTUI
 {
-    [Activity( Theme = "@style/Maui.SplashTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
+    [Activity( Theme = "@style/MyTheme", MainLauncher = true, ResizeableActivity = true,ScreenOrientation = ScreenOrientation.Landscape,TurnScreenOn = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density, LaunchMode = LaunchMode.SingleTask)]
     public class MainActivity : MauiAppCompatActivity
     {
         SendStatusReceiver receiver;
+        BroadcastReceiver boot_broadcastReceiver;
+        //BootReceiver bootReceiver;
         public MainActivity()
         {
             AndroidServiceManager.MainActivity = this;
@@ -34,8 +37,14 @@ namespace HPISMARTUI
         {
             base.OnCreate(savedInstanceState);
             receiver = new SendStatusReceiver();
-
+            this.Window.AddFlags(WindowManagerFlags.Fullscreen);
+            //this.Window.AddFlags(WindowManagerFlags.KeepScreenOn);
+            DeviceDisplay.Current.KeepScreenOn = true;
+            //  DeviceDisplay.Current.
             // Code omitted for clarity
+            boot_broadcastReceiver= new BootReceiver();
+
+            
         }
 
         protected override void OnResume()
@@ -43,6 +52,7 @@ namespace HPISMARTUI
             base.OnResume();
             RegisterReceiver(receiver, new IntentFilter("ir.hpi.hpismartui.message_sent_action"));
             // Code omitted for clarity
+            RegisterReceiver(boot_broadcastReceiver, new IntentFilter(Intent.ActionBootCompleted));
         }
 
         protected override void OnPause()

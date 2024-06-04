@@ -17,7 +17,7 @@ using Javax.Xml.Transform;
 
 
 
-namespace HPISMARTUI.Model
+namespace HPISMARTUI.Services
 {
     
     public partial class AndroidLocationManager : ObservableObject
@@ -167,9 +167,12 @@ namespace HPISMARTUI.Model
             {
 
                 speed_MetersPerMinute = location.Speed.Value * 60.0f;
-               // speed_MetersPerHours = speed_MetersPerMinute * 60.0f;
+                // speed_MetersPerHours = speed_MetersPerMinute * 60.0f;
                 //BikeSpeed = speed_MetersPerHours  / 1000.0f; // divide to 1000 (Meters Per KM)
                 BikeSpeed = speed_MetersPerMinute * 0.06f; // Equal With: speed_MetersPerMinute * 60 / 1000
+            } else
+            {
+                BikeSpeed = 0.0f;
             }
 /*            return
                 $"Latitude: {location.Latitude}\n" +

@@ -6,7 +6,9 @@ namespace HPISMARTUI
         public AppShell()
             {
             InitializeComponent();
+            Routing.RegisterRoute(nameof(SplashPage), typeof(SplashPage));
             Routing.RegisterRoute(nameof(MainPage),typeof(MainPage));
+            
             }
         }
     }
