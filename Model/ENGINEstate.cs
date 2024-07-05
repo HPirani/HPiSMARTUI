@@ -79,47 +79,47 @@ namespace HPISMARTUI.Model
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(SmallLightColor))]
-        private bool _isSmallLight_Enabled;
+        private bool _isSmallLight_Enabled = false;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HeadLightColor))]
-        public bool isHeadLight_Enabled;
+        private bool isHeadLight_Enabled = false;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(BlinkersColor))]
-        public bool isLeftTurn_Enabled;
+        private bool isLeftTurn_Enabled = false;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(BlinkersColor))]
-        public bool isRightTurn_Enabled;
+        private bool isRightTurn_Enabled = false;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(BlinkersColor))]
-        public bool isMultiblink_Enabled;
+        private bool isMultiblink_Enabled = false;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(BlinkersColor))]
-        public bool isBlinkDance_Enabled;
+        private bool isBlinkDance_Enabled = false;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(BlinkersColor))]
-        public bool isHeadBlink_Enabled;
+        private bool isHeadBlink_Enabled = false;
 
         [ObservableProperty]
-        public bool isENGINE_ON;
+        private bool isENGINE_ON = false;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(PoliceLightColor))]
-        public bool isPOliceLight_Enabled;
+        private bool isPOliceLight_Enabled = false;
 
         [ObservableProperty]
-        public bool isMeSirenSource_Enabled;
+        private bool isMeSirenSource_Enabled = false;
         //
         [ObservableProperty]
-        public bool isShake_Detected;
+        private bool isShake_Detected = false;
 
         [ObservableProperty]
-        public bool is_Silenced;//should reset the "ShakeDetected".
+        private bool is_Silenced = false;//should reset the "ShakeDetected".
 
 
        
@@ -128,32 +128,32 @@ namespace HPISMARTUI.Model
             get
             {
                 Log.Debug("SmallLightColor", "Invoked");
-                return IsSmallLight_Enabled ? Colors.Blue : Colors.DarkBlue;
+                return IsSmallLight_Enabled ? Colors.White : Colors.Gray;
             }
         }
         public Color HeadLightColor
         {
             get
             {
-                return IsSmallLight_Enabled ? Colors.Blue : Colors.DarkBlue;
+                return IsSmallLight_Enabled ? Colors.LightBlue : Colors.Gray;
             }
         }
         public Color BlinkersColor
         {
             get
             {
-                return IsLeftTurn_Enabled ? Colors.Blue : Colors.DarkBlue;
+                return IsLeftTurn_Enabled ? Colors.Red : Colors.Gray;
             }
         }
         public Color PoliceLightColor
         {
             get
             {
-                return IsPOliceLight_Enabled ? Colors.Blue : Colors.DarkBlue;
+                return IsPOliceLight_Enabled ? Colors.OrangeRed : Colors.Gray;
             }
         }
 
-        
+
 
        
 

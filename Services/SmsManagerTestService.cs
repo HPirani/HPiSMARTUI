@@ -180,7 +180,7 @@ private static void sendSms(string phoneNumber, string text, PendingIntent sendI
             SmsManager m = SmsManager.Default;
 #pragma warning restore CA1422 // Validate platform compatibility
             m.SendTextMessage(phoneNumber, null, text, sendIntent, null);
-            Log.Debug("sendSmsInManagerService", " Send.");
+            Log.Debug("sendSmsInManagerService", " SendSerialData.");
         }
 }
 

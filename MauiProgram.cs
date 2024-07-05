@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using CommunityToolkit.Maui;
-//using CommunityToolkit.Maui.MediaElement;
+
 using HPiCircularGauge;
 using epj.RadialDial.Maui;
 using HPISMARTUI.Helper;
@@ -12,6 +12,7 @@ using HPISMARTUI.Services;
 using HPISMARTUI.Model;
 using Plugin.Maui.ScreenBrightness;
 using MauiPageFullScreen;
+using Microsoft.Maui.Hosting;
 namespace HPISMARTUI
 {
     public static class MauiProgram
@@ -24,6 +25,7 @@ namespace HPISMARTUI
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
+                //.UseMauiCommunityToolkitMarkup()
                 .UseMauiCommunityToolkitMediaElement()
                 .UseCircularGauge()
                .UseFullScreen()
@@ -45,7 +47,7 @@ namespace HPISMARTUI
                     fonts.AddFont("ds-digi.ttf", "dsdigi");
                     fonts.AddFont("E1234.ttf", "E1234");
                     fonts.AddFont("fabesmellah2.ttf", "fabesmellah2");
-                    fonts.AddFont("fabesmellah1.ttf", "fabesmellah1");
+                    fonts.AddFont("faBesmellah1.ttf", "fabesmellah1");
                     fonts.AddFont("faelm.ttf", "faelm");
                     fonts.AddFont("fakoodak.ttf", "fakoodak");
                     fonts.AddFont("faNadine.ttf", "faNadine");
@@ -59,12 +61,17 @@ namespace HPISMARTUI
                 });
 
             builder.Services.AddSingleton<MainPage>();
+
+            builder.Services.AddTransient<SettingsPage>();
+            builder.Services.AddTransient<SettingsViewModel>();
+            builder.Services.AddSingleton<ISettingsService, SettingsService>();
             builder.Services.AddTransient<SplashPage>();
             builder.Services.AddTransient<SplashViewModel>();
+
             builder.Services.AddSingleton<MainViewModel>();
             builder.Services.AddSingleton<SerialPortHelper>();
             builder.Services.AddSingleton(AudioManager.Current);
-            builder.Services.AddSingleton<IScreenBrightness>(ScreenBrightness.Default);
+            builder.Services.AddSingleton(ScreenBrightness.Default);
             builder.Services.AddSingleton<SmsManagerTestService>();
             builder.Services.AddSingleton<PersistentService>();
             builder.Services.AddSingleton<SendStatusReceiver>();

@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:main=" clr-namespace:HPISMARTUI"
     xmlns:model=" clr-namespace:HPISMARTUI.Model"
     xmlns:viewmodel="clr-namespace:HPISMARTUI.ViewModel"
     xmlns:serial="clr-namespace:Hoho.Android.UsbSerial.Driver;assembly=Android.UsbSerial"
@@ -30,6 +31,8 @@
                 Property="VerticalOptions"
                 Value="CenterAndExpand" />
         </Style>
+        <!--<main:InverterConverter  x:Key="InverterConverter" />-->
+
     </ContentPage.Resources>
     
     <Grid>
@@ -43,15 +46,37 @@
             
             <Grid.RowDefinitions>
                 <RowDefinition
-                    Height="Auto"
-                           />
+                    Height="*"
+                />
                 <RowDefinition
-                    Height="Auto" />
+                    Height="*" 
+                />
                 <RowDefinition
-                    Height="Auto" />
+                    Height="*" 
+                />
                 <RowDefinition
-                    Height="Auto" />
-              
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition
@@ -60,106 +85,137 @@
                     Width="*" />
                 <ColumnDefinition
                     Width="*" />
-               
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
             </Grid.ColumnDefinitions>
-            <!--Signs-->
+            
+<!--*************************Signs**********************************-->
   
             
             
-            <!--Gauges-->
-            <StackLayout
-                Grid.Column="0"
-                Grid.Row="0"
-                >
+ <!--KMH BG-->
+            
                 <Image
-                    Source="modern-kmh-gauge-color.png"
-                    Scale="1.3"
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    TranslationX="-38"
-                    TranslationY="38" />
+                Grid.Column="3"
+                Grid.Row="3"
+                Source="modern_kmh_gauge_color.png"
+                    
+                Margin="-100, -97, -80, -100"
+               HeightRequest="340"
+               WidthRequest="340"
+                    
+                    TranslationX="-0"
+                    TranslationY="0" />
+ <!--KMH Gauge-->
+            <circularGage:CircularGauge
                 
-                <circularGage:CircularGauge
-                    x:Name="KMHGauge"
-                    ShowScale="True"
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    WidthRequest="270"
-                    HeightRequest="270"
-                    Value="{Binding Value, Source={x:Reference ValueSlider}}"
-                    StartAngle="00.0"
-                    SweepAngle="329.0"
-                    GaugeWidth="25.0"
-                    MinValue="0.0"
-                    MaxValue="110.0"
-                    NeedleLength="30.0"
-                    NeedleWidth="25.0"
-                    NeedleOffset="-65.0"
-                    BaseWidth="20.0"
-                    BaseStrokeWidth="10.0"
-                    ScaleLength="10.0"
-                    ScaleDistance="4.0"
-                    ScaleThickness="3.0"
-                    ScaleUnits="10"
-                    GaugeColor="Red"
-                    NeedleColor="Firebrick"
-                    BaseColor="Black"
-                    BaseStrokeColor="DarkRed"
-                    ScaleColor="LightGray"
-                    TranslationX="-38"
-                    TranslationY="-220">
-                    <circularGage:CircularGauge.GaugeGradientColors>
-                        <Color>DarkGreen</Color>
-                        <Color>DarkGreen</Color>
-                        <Color>DarkGreen</Color>
-                        <Color>YellowGreen</Color>
-                        <Color>Yellow</Color>
-                        <Color>Yellow</Color>
-                        <Color>OrangeRed</Color>
-                        <Color>DarkRed</Color>
-                        <Color>DarkRed</Color>
-                    </circularGage:CircularGauge.GaugeGradientColors>
-                </circularGage:CircularGauge>
-                <!--Gauge Backgrounds-->
-                <Label 
-                    FontFamily="E1234"
-                    FontSize="60"
-                    TextColor="AliceBlue"
-                    Text="{Binding Value, Source={x:Reference KMHGauge}}"
-                    TranslationX="-129"
-                    TranslationY="-392"
-                />
-
-            </StackLayout>
-            <StackLayout
-                Grid.Column="1"
-                Grid.Row="0"
-                 >
-                <!--HeadLight-->
+                Margin="-100, 22, -77, -100"
+                Grid.Column="3"
+                Grid.Row="3"
+                x:Name="KMHGauge"
+                ShowScale="True"
+                IsEnabled="False"
+                WidthRequest="209"
+                HeightRequest="209"
+                Value="{Binding Value, Source={x:Reference RPMgauge}}"
+                StartAngle="90.0"
+                SweepAngle="188.0"
+                GaugeWidth="28.0"
+                MinValue="0.0"
+                MaxValue="187.0"
+                NeedleLength="29.0"
+                NeedleWidth="29.0"
+                NeedleOffset="-60.0"
+                BaseWidth="0.0"
+                BaseStrokeWidth="10.0"
+                ScaleLength="10.0"
+                ScaleDistance="4.0"
+                ScaleThickness="3.0"
+                ScaleUnits="1"
+                GaugeColor="Yellow"
+                NeedleColor="Yellow"
+                BaseColor="Black"
+                BaseStrokeColor="DarkRed"
+                ScaleColor="LightGray"
+                TranslationX="-0"
+                TranslationY="0">
+                <circularGage:CircularGauge.GaugeGradientColors>
+                    <Color>SKyBlue</Color>
+                    <Color>LightSkyBlue</Color>
+                    <Color>DarkGreen</Color>
+                    <Color>YellowGreen</Color>
+                    <Color>Yellow</Color>
+                    <Color>Yellow</Color>
+                    <Color>OrangeRed</Color>
+                    <Color>Red</Color>
+                    <Color>Red</Color>
+                </circularGage:CircularGauge.GaugeGradientColors>
+            </circularGage:CircularGauge>
+            
+            
+<!--HeadLight Sign-->
             <Image
-                HorizontalOptions="Center"
-                VerticalOptions="Center"
-                Scale="1.5"
-                TranslationX="230"
-                TranslationY="341"
-                >
+                Grid.Column="1"
+                Grid.Row="12"
+                Margin="-50, 10, -30, 20"
                 
+                HorizontalOptions="Start"
+                VerticalOptions="Center"
+                HeightRequest="80"
+                
+                TranslationX="0"
+                TranslationY="-0">
                 <Image.Source>
                     <FontImageSource
-                        Color="{Binding HeadLightColor,Source={x:Type model:ENGINEstate}}"
+                        Color="{Binding Estate.HeadLightColor}"
                         Glyph="&#xE01F;"
                         FontFamily="HPiSigns"
                         Size="90"></FontImageSource>
                 </Image.Source>
+                <Image.Behaviors>
+                    <toolkit:ImageTouchBehavior
+                        Command="{Binding SendCommandToENGINECommand}"
+                        CommandParameter="ToggleHeadLight"
+                        LongPressCommand="{Binding SendCommandToENGINECommand}"
+                        LongPressCommandParameter="ToggleHeadBlink"
+                        DefaultAnimationDuration="250"
+                        DefaultAnimationEasing="{x:Static Easing.SpringOut}"
+                        PressedOpacity="0.6"
+                        PressedScale="0.9"></toolkit:ImageTouchBehavior>
+                </Image.Behaviors>
             </Image>
-                <!--RightBlinker-->
+            
+<!--RightBlinker-->
                 <Image
-                    HorizontalOptions="Center"
+                    
+                    Grid.Column="3"
+                    Grid.Row="12"
+                Margin="-30, -50, -40, -40"
+                HorizontalOptions="End"
                     VerticalOptions="Center"
-                    Scale="1.85"
-                    ScaleX="1.1"
-                    TranslationX="120"
-                    TranslationY="250">
+                    
+                    TranslationX="-0"
+                    TranslationY="-0">
                     
                     <Image.Source>
                         <FontImageSource
@@ -168,15 +224,26 @@
                             FontFamily="HPiSigns"
                             Size="90"></FontImageSource>
                     </Image.Source>
-                </Image>
-                <!--LeftBlinker-->
+                <Image.Behaviors>
+                    <toolkit:ImageTouchBehavior
+                        Command="{Binding SendCommandToENGINECommand}"
+                        CommandParameter="ToggleRightTurn"
+                        DefaultAnimationDuration="250"
+                        DefaultAnimationEasing="{x:Static Easing.SpringOut}"
+                        PressedOpacity="0.6"
+                        PressedScale="0.9"></toolkit:ImageTouchBehavior>
+                </Image.Behaviors>
+            </Image>
+ <!--LeftBlinker-->
                 <Image
-                    HorizontalOptions="Center"
+                    Grid.Column="7"
+                    Grid.Row="12"
+                Margin="-30, -50, -75, -40"
+                HorizontalOptions="End"
                     VerticalOptions="Center"
-                    Scale="2"
-                    ScaleX="1.1"
-                    TranslationX="-153"
-                    TranslationY="160">
+                    
+                    TranslationX="-0"
+                    TranslationY="-0">
                     <Image.Source>
                         <FontImageSource
                             Color="{Binding Estate.HeadLightColor}"
@@ -184,15 +251,26 @@
                             FontFamily="HPiSigns"
                             Size="90"></FontImageSource>
                     </Image.Source>
-                </Image>
-                <!--Multiblinker-->
+                <Image.Behaviors>
+                    <toolkit:ImageTouchBehavior
+                        Command="{Binding SendCommandToENGINECommand}"
+                        CommandParameter="ToggleLeftTurn"
+                        DefaultAnimationDuration="250"
+                        DefaultAnimationEasing="{x:Static Easing.SpringOut}"
+                        PressedOpacity="0.6"
+                        PressedScale="0.9"></toolkit:ImageTouchBehavior>
+                </Image.Behaviors>
+            </Image>
+                        
+<!--Multiblinker-->               
                 <Image
+                    Grid.Column="6"
+                    Grid.Row="12"
                     HorizontalOptions="Center"
                     VerticalOptions="Center"
-                    Scale="2"
-                    
-                    TranslationX="-18"
-                    TranslationY="70">
+                    Margin="-60, -60, -29, -70"
+                    ScaleY="1.2"
+                    ScaleX="1.3">
                     <Image.Source>
                         <FontImageSource
                             Color="{Binding Estate.HeadLightColor}"
@@ -200,15 +278,31 @@
                             FontFamily="HPiSigns"
                             Size="90"></FontImageSource>
                     </Image.Source>
-                </Image>
-                <!--BatterySign-->
+                <Image.Behaviors>
+                    <toolkit:ImageTouchBehavior
+                        Command="{Binding SendCommandToENGINECommand}"
+                        CommandParameter="ToggleMultiblinker"
+                        LongPressCommand="{Binding SendCommandToENGINECommand}"
+                        LongPressCommandParameter="ToggleBlinkDance"
+                        DefaultAnimationDuration="250"
+                        DefaultAnimationEasing="{x:Static Easing.SpringOut}"
+                        PressedOpacity="0.6"
+                        PressedScale="0.9"></toolkit:ImageTouchBehavior>
+                </Image.Behaviors>
+            </Image>
+            
+ <!--BatterySign-->
                 <Image
-                    HorizontalOptions="Center"
+                    Grid.Column="12"
+                    Grid.Row="8"
+                Margin="-30, -50, -10, -40"
+                HorizontalOptions="Center"
                     VerticalOptions="Center"
-                    ScaleX="1.8"
-                    ScaleY="1.7"
-                    TranslationX="-220"
-                    TranslationY="-100">
+                    Aspect="AspectFill"
+                    Scale="2"
+                    
+                    TranslationX="-0"
+                    TranslationY="-0">
                     <Image.Source>
                         <FontImageSource
                             Color="{Binding Estate.HeadLightColor}"
@@ -217,28 +311,34 @@
                             Size="90"></FontImageSource>
                     </Image.Source>
                 </Image>
-                <!--OverHeatSign-->
+ <!--OverHeatSign-->
                 <Image
-                    HorizontalOptions="Center"
+                Grid.Column="12"
+                Grid.Row="8"
+                HorizontalOptions="Center"
                     VerticalOptions="Center"
-                    Scale="1.99"
-                    TranslationX="327"
-                    TranslationY="-126">
+                    Scale="4"
+                    
+                    TranslationX="0"
+                    TranslationY="0">
                     <Image.Source>
                         <FontImageSource
-                            Color="{Binding Estate.HeadLightColor}"
-                            Glyph="&#xE02B;"
+                            Color="DarkRed"
+                            Glyph="&#xE001;"
                             FontFamily="HPiSigns"
                             Size="90"></FontImageSource>
                     </Image.Source>
                 </Image>
-                <!--FuelSign-->
+ <!--FuelSign-->
                 <Image
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    Scale="2"
-                    TranslationX="0"
-                    TranslationY="-390">
+                Grid.Column="10"
+                Grid.Row="8"
+                IsEnabled="False"
+                    HorizontalOptions="End"
+                    VerticalOptions="End"
+                    Scale="4"
+                    TranslationX="13"
+                    TranslationY="15">
                     <Image.Source>
                         <FontImageSource
                             Color="{Binding Estate.HeadLightColor}"
@@ -247,79 +347,132 @@
                             Size="90"></FontImageSource>
                     </Image.Source>
                 </Image>
-                <!--SirenSign-->
+<!--SirenSign-->
                 <Image
-                    HorizontalOptions="End"
-                    VerticalOptions="End"
-                    Scale="1.1"
-                    TranslationX="-172"
-                    TranslationY="-292">
+                    Grid.Column="10"
+                    Grid.Row="12"
+                Margin="-30, -50, -38, -40"
+                HorizontalOptions="End"
+                    VerticalOptions="Center">
                     <Image.Source>
                         <FontImageSource
-                            Color="{Binding Estate.HeadLightColor}"
+                            Color="{Binding Estate.PoliceLightColor}"
                             Glyph="&#xE050;"
                             FontFamily="HPiSigns"
                             Size="90"></FontImageSource>
                     </Image.Source>
-                </Image>
-                <!--AutoStartSign-->
+                <Image.Behaviors>
+                    <toolkit:ImageTouchBehavior
+                        Command="{Binding SendCommandToENGINECommand}"
+                        CommandParameter="TogglePoliceLights"
+                       
+                        DefaultAnimationDuration="250"
+                        DefaultAnimationEasing="{x:Static Easing.SpringOut}"
+                        PressedOpacity="0.6"
+                        PressedScale="0.9"></toolkit:ImageTouchBehavior>
+                </Image.Behaviors>
+            </Image>
+<!--AutoStartSign-->
+            <!--IsVisible="{Binding Estate.IsENGINE_ON,Converter={StaticResource InvertConverter}}"-->
+            <Image
+                Grid.Column="12"
+                Grid.Row="12"
+                Margin="-10, -50, -90, -40"
+                IsEnabled="True"
+                IsVisible="true"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                TranslationX="-0"
+                TranslationY="-0">
+                <Image.Source>
+                    <FontImageSource
+                        Color="{Binding Estate.HeadLightColor}"
+                        Glyph="&#xE057;"
+                        FontFamily="HPiSigns"
+                        Size="90"></FontImageSource>
+                </Image.Source>
+                <Image.Behaviors>
+                    <toolkit:ImageTouchBehavior
+                        Command="{Binding SendCommandToENGINECommand}"
+                        CommandParameter="AutoStart"
+                        LongPressCommand="{Binding SendCommandToENGINECommand}"
+                        LongPressCommandParameter="ForceAutoStart"
+                        
+                        DefaultAnimationDuration="250"
+                        DefaultAnimationEasing="{x:Static Easing.SpringOut}"
+                        PressedOpacity="0.6"
+                        PressedScale="0.9"></toolkit:ImageTouchBehavior>
+                </Image.Behaviors>
+            </Image>
+<!--Settings Button-->
+            <Image 
+                Margin="0,0,0,0"
+                Grid.Column="12"
+             Grid.Row="1"   
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                HeightRequest="30"
+                WidthRequest="30">
+                <Image.Source>
+                    <FontImageSource 
+                        Color="AliceBlue"
+                        Glyph="0xE8B8"
+                        FontFamily="HPiSigns"
+                        Size="90"
+                    />
+                </Image.Source>
+                <Image.Behaviors>
+                    <toolkit:TouchBehavior
+                        Command="{Binding GotoSettingsPageAsyncCommand}"
+                        DefaultAnimationDuration="250"
+                        DefaultAnimationEasing="{x:Static Easing.SpringOut}"
+                        PressedOpacity="0.6"
+                        PressedScale="0.9" />
+                </Image.Behaviors>
+            </Image>
+<!--RPM Meter-->
                 <Image
-                    HorizontalOptions="End"
+                Margin="-100, -100, -100, -100"
+                Grid.Column="12"
+                    Grid.Row="2"
                     VerticalOptions="End"
-                    Scale="1.1"
-                    TranslationX="-260"
-                    TranslationY="-383">
-                    <Image.Source>
-                        <FontImageSource
-                            Color="{Binding Estate.HeadLightColor}"
-                            Glyph="&#xE058;"
-                            FontFamily="HPiSigns"
-                            Size="90"></FontImageSource>
-                    </Image.Source>
-                </Image>
-            </StackLayout>
-            <StackLayout
-                Grid.Column="2"
+                    HorizontalOptions="Start"
+                    Source="modern_rpm_gauge_color.png"
+                    HeightRequest="340"
+                    WidthRequest="340"
+                    TranslationX="130"
+                    TranslationY="90" 
+                />
                 
-                Grid.Row="0"
-                 />
-            <StackLayout
-                Grid.Column="3"
-                Grid.Row="0"
-                >
-                <!--SPEEDoMETER-->
-                <Image 
-                    Source="gauge_green.png"
-                    Scale="1.25"
-                    TranslationX="36"
-                    TranslationY="32"  />
                 <radialDial:RadialDial
-                    
-                    TranslationX="34"
-                    TranslationY="-238"
-                    StartAngle="150"
-                    BaseStartAngle="160"
-                    BaseSweepAngle="225"
-                    MaxSweepAngle="225"
+                Grid.Column="12"
+                Grid.Row="1"
+              
+                ScaleX="1"
+                    TranslationX="87"
+                    TranslationY="125"
+                    StartAngle="175"
+                    BaseStartAngle="188"
+                    BaseSweepAngle="174"
+                    MaxSweepAngle="196"
                     StrokeCap="Round"
-                    DialStyle="Dash"
+                    DialStyle="Square"
                     DashPhase="36"
                     DialSize="0"
-                    Grid.Row="0"
-                    Grid.Column="2"
                     x:Name="RPMgauge"
+                    HorizontalOptions="Center"
                     VerticalOptions="Center"
-                    WidthRequest="280"
-                    HeightRequest="280"
+                    WidthRequest="200"
+                    HeightRequest="200"
                     TouchInputEnabled="True"
-                    DialWidth="18"
+                    DialWidth="34"
                     DialColor="pink"
                     BaseColor="#171717"
                     Scale="1"
                     Min="0"
                     Max="120"
                     ShowScale="False"
-                    InternalPadding="-52"
+                    InternalPadding="-45"
                     UseGradient="True"
                     IgnorePixelScaling="True">
                     <radialDial:RadialDial.GradientColors>
@@ -332,69 +485,158 @@
                         <Color>DarkRed</Color>
                     </radialDial:RadialDial.GradientColors>
                   </radialDial:RadialDial>
-                 <Label 
-                    VerticalOptions="Center"
-                    HorizontalOptions="Center"
-                    TranslationX="10"
-                    TranslationY="-410"
+ <!--RPM String-->
+                 <Label
+                Margin="00, 00, -57, -12"
+                Grid.Column="10"
+                     Grid.Row="4"
+                    VerticalOptions="End"
+                    HorizontalOptions="End"
+                     
+                     WidthRequest="110"
+                     HorizontalTextAlignment="Center"
+                     
+                    TranslationX="-0"
+                    TranslationY="-0"
                     TextColor="Bisque"
-                    FontFamily="modern-lcd"
-                    FontSize="45"
+                    FontFamily="E1234"
+                    FontSize="52"
+                     ScaleY="0.9"
+                     FontAttributes="Bold"
                     Text="{Binding Value ,Source={x:Reference RPMgauge}}"
                  />
-            </StackLayout>
-            
-            
-
-
-
-        
-            
-            <!--Trip-->
+<!--KMH String-->
             <Label
-                Grid.Column="1"
-                Grid.Row="0"
-                FontSize="60"
+                Margin="-100, -82, -77, -100"
+                Grid.Column="3"
+                Grid.Row="4"
+                FontFamily="DigitalDream"
+                FontSize="40"
+                FontAttributes="Bold"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                WidthRequest="90"
+                TextColor="AliceBlue"
+                Text="{Binding Value, Source={x:Reference KMHGauge}}"
+                TranslationX="-0"
+                TranslationY="-0" />
+            
+<!--Fuel Gauge-->
+            <!--fuel BG-->
+            <Image
+                Grid.Row="5"
+                Grid.Column="3"
+                Margin="-180, 12, -157, -180"
+                Source="modern_fuel_gauge.png" 
+            />
+            <circularGage:CircularGauge
+                Grid.Row="5"
+                Grid.Column="3"
+                Margin="-100, 22, -77, -100"
+                IsEnabled="False"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                ShowScale="True"
                 
-                TranslationY="-89"
-                TranslationX="-38"
+                WidthRequest="170"
+                HeightRequest="170"
+                Value="{Binding Value, Source={x:Reference RPMgauge}}"
+                StartAngle="145.0"
+                SweepAngle="135.0"
+                GaugeWidth="28.0"
+                MinValue="0.0"
+                MaxValue="185.0"
+                NeedleLength="56.0"
+                NeedleWidth="29.0"
+                NeedleOffset="-30.0"
+                BaseWidth="00.0"
+                BaseStrokeWidth="10.0"
+                ScaleLength="5.0"
+                ScaleDistance="4.0"
+                ScaleThickness="3.0"
+                ScaleUnits="1"
+                GaugeColor="Yellow"
+                NeedleColor="Yellow"
+                BaseColor="Black"
+                BaseStrokeColor="DarkRed"
+                ScaleColor="LightGray"
+                TranslationX="-0"
+                TranslationY="77">
+                <circularGage:CircularGauge.GaugeGradientColors>
+                    <Color>Red</Color>
+                    <Color>Yellow</Color>
+                    <Color>SKyBlue</Color>
+                    <Color>SKyBlue</Color>
+                    <Color>SKyBlue</Color>
+                    <Color>SKyBlue</Color>
+                    <Color>LightSkyBlue</Color>
+                </circularGage:CircularGauge.GaugeGradientColors>
+            </circularGage:CircularGauge>
+
+<!--BatteryLevel-->
+            <Label
+                Margin="-100, -40, -77, -10"
+                Grid.Column="7"
+                Grid.Row="8"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                FontSize="50"
+                TranslationY="-0"
+                TranslationX="-0"
+                FontFamily="OpenDisplay"
+                TextColor="Red"
+                HorizontalTextAlignment="Center"
+                Text="{Binding Brightness}" />
+            
+<!--Trip-->
+            <Label
+                
+                Margin="-100, -22, -85, -30"
+                Grid.Column="7"
+                Grid.Row="9"
+                FontSize="60"
+                TranslationY="-0"
+                TranslationX="-0"
                 FontFamily="OpenDisplay"
                 TextColor="AliceBlue"
                 Text="12345678.90"/>
-            <!--Date-->
+ <!--Date-->
             <Label
-                Grid.Column="1"
-                Grid.Row="0"
-                TranslationY="-381"
-                TranslationX="-9"
-                FontSize="48"
+                Margin="-100, -60, -60, -10"
+                Grid.Column="7"
+                Grid.Row="1"
+                WidthRequest="250"
+                FontSize="45"
+                HorizontalTextAlignment="Center"
                 FontFamily="Coulson-Condensed"
                 TextColor="AliceBlue"
                 Text="1403/03/05" />
-            <!--Time-->
+<!--Time-->
             <Label
-                Grid.Column="1"
-                Grid.Row="0"
-                TranslationY="-308"
-                TranslationX="-00"
-                FontSize="78"
+                Margin="-100, -10, -50, -40"
+                Grid.Column="7"
+                Grid.Row="2"
+                FontSize="70"
                 ScaleX="1.1"
                 FontFamily="2015Cruiser"
                 TextColor="AliceBlue"
                 LineHeight="0.6"
+                HeightRequest="122"
                 HorizontalTextAlignment="Center"
                 VerticalTextAlignment="Center"
                 MaximumWidthRequest="105"
                 LineBreakMode="WordWrap"
-                Text="23 32" />
-            <!--EngineTemp-->
+                Text="23 33" />
+<!--EngineTemp-->
             <Label
-                Grid.Column="1"
-                Grid.Row="0"
-                TranslationY="-140"
-                TranslationX="-90"
-                FontSize="40"
-                FontFamily="DigitalDream"
+                Margin="-100, -10, -57, -40"
+                Grid.Column="7"
+                Grid.Row="5"
+                VerticalTextAlignment="Center"
+                HorizontalTextAlignment="Center"
+                FontSize="45"
+                FontFamily="Coulson-Condensed"
                 TextColor="AliceBlue"
                 Text="224" />
         </Grid>

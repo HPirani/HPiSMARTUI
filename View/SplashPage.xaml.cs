@@ -1,7 +1,5 @@
 using Microsoft.Maui;
 using Microsoft.Maui.Controls;
-using System;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hoho.Android.UsbSerial.Driver;
@@ -70,6 +68,7 @@ public partial class SplashPage : ContentPage
     protected override async void OnAppearing()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
+        await Shell.Current.GoToAsync(nameof(MainPage),true);
         base.OnAppearing();
     }
 

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Android.App;
+//using Android.Locations;
 using Android.Util;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -12,6 +13,8 @@ using CommunityToolkit.Mvvm.Messaging;
 
 using HPISMARTUI.Messages;
 using HPISMARTUI.ViewModel;
+
+using IntelliJ.Lang.Annotations;
 
 using Javax.Xml.Transform;
 
@@ -29,8 +32,7 @@ namespace HPISMARTUI.Services
             Failed
         }
 
-
-        string notAvailable = "not available";
+        readonly string notAvailable = "not available";
         CancellationTokenSource cts;
         [ObservableProperty]
         public string retrivedLocation = "Waiting For Call...";
@@ -38,6 +40,8 @@ namespace HPISMARTUI.Services
         private string currentLocation;
         [ObservableProperty]
         int accuracy = (int)GeolocationAccuracy.Default;
+        public bool IsListening => Geolocation.IsListeningForeground;
+        public bool IsNotListening => !IsListening;
         ////////////////////////////////////////////
         //Bike Speed Retrived From GPS;
         //Send To UI via WeakReferenceMessenger.Or Directly Via Xaml Binding.
@@ -45,24 +49,42 @@ namespace HPISMARTUI.Services
         private static double bikeSpeed = 999.999;
 
         private double speed_MetersPerMinute;
-       // private double speed_MetersPerHours;
+        // private double speed_MetersPerHours;
+
+        public AndroidLocationManager()
+        {
+            //Messenger
+            WeakReferenceMessenger.Default.Register<AndroidLocationManager, Messages.ALocationManagerCommunications>
+                (this, async (recipient, message) =>
+                {
+                    //recipient.DeviceLocation = message.Value;
+                    switch (message.Value)
+                    {
+                        case "StartListening":
+                            StartListening();
+                            break;
+                        case "StopListening":
+                            StopListening();
+                            break;
+                        case "GetLastLocation":
+                          await  GetDeviceLocation();
+                            break;
+
+                        default: break;
+                    }
+                    Log.Debug("Messenger", "Received Location Message!");
+
+                });
+
+        }
+
 
         private async Task<LResult> Get_LastLocation()
         {
-            // if (IsBusy)
-            //    return;
-
-            //  IsBusy = true;
             try
             {
                 var location = await Geolocation.GetLastKnownLocationAsync();
-            //    if (location == null)
-              //  {
-                //    CurrentLocation = "Chached Failed.";
-                   // return LResult.Failed;
-            //    }
                 CurrentLocation = FormatLocation(location);
-                
                 //   RetrivedLocation = LastLocation;
             }
             catch (Exception ex)
@@ -78,10 +100,6 @@ namespace HPISMARTUI.Services
 
         async Task<LResult> Get_CurrentLocation()
         {
-            // if (IsBusy)
-            //    return;
-
-            //  IsBusy = true;
             try
             {
                 var request = new GeolocationRequest(GeolocationAccuracy.Default);
@@ -91,13 +109,9 @@ namespace HPISMARTUI.Services
                 var location = await Geolocation.GetLocationAsync(request, cts.Token);
                 Log.Debug("Latitude: ", location.Latitude.ToString());
                 Log.Debug("Longitude: ", location.Longitude.ToString());
-                //  LastLocation = "Latitude: " + location.Latitude.ToString() + "Longitude: " + location.Longitude.ToString();
-               // if (location == null)
-               // {
-              //      return LResult.Failed;
-               // }
+
                 CurrentLocation = FormatLocation(location);
-                //DeviceLocation = CurrentLocation;
+                
             }
             catch (Exception ex)
             {
@@ -115,7 +129,6 @@ namespace HPISMARTUI.Services
             // IsBusy = false;
         }
 
-
       public  async  Task GetDeviceLocation()
         {
             var actualLoc = await Get_CurrentLocation();
@@ -129,27 +142,87 @@ namespace HPISMARTUI.Services
 
         }
 
+      public  async void StartListening()
+        {
+            try
+            {
+                Geolocation.LocationChanged += Geolocation_LocationChanged;
+
+                var request = new GeolocationListeningRequest((GeolocationAccuracy)Accuracy);
+
+                var success = await Geolocation.StartListeningForegroundAsync(request);
+
+                 
+              Log.Debug("ALocationListener", success ? "Started listening for foreground location updates" : "Couldn't start listening");
+                     
+            }
+            catch (Exception ex)
+            {
+                CurrentLocation = FormatLocation(null, ex);
+                //throw;
+            }
+
+            OnPropertyChanged(nameof(IsListening));
+            OnPropertyChanged(nameof(IsNotListening));
+        }
+
+       /// <summary>
+       /// Listen For Location changes.
+       /// </summary>
+       /// <param name="sender"></param>
+       /// <param name="e"></param>
+        void Geolocation_LocationChanged(object sender, GeolocationLocationChangedEventArgs e)
+        {
+            CurrentLocation = FormatLocation(e.Location);
+            //Send RawLocation To MainViewModel.
+            WeakReferenceMessenger.Default.Send(new RawDeviceLocationMessage(e.Location));
+            //Send FormatedLocation To MainViewModel For Emergency Message.
+            WeakReferenceMessenger.Default.Send(new Messages.DeviceLocationMessage(CurrentLocation));
+        }
+
+     public void StopListening()
+        {
+            try
+            {
+                if (cts != null && !cts.IsCancellationRequested)
+                    cts.Cancel();
+
+                Geolocation.LocationChanged -= Geolocation_LocationChanged;
+
+                Geolocation.StopListeningForeground();
+
+                CurrentLocation = "Stopped listening for foreground location updates";
+            }
+            catch (Exception ex)
+            {
+                CurrentLocation = FormatLocation(null, ex);
+            }
+
+            OnPropertyChanged(nameof(IsListening));
+            OnPropertyChanged(nameof(IsNotListening));
+        }
 
 
         string FormatLocation(Location location, Exception ex = null)
         {
             if (location == null)
             {
+                WeakReferenceMessenger.Default.Send(new ALocationManagerToMainViewModel($"Unable to detect location. Exception: {ex?.Message ?? string.Empty}"));
                 Log.Debug("FormatLocation: ", "null!");
                 return $"Unable to detect location. Exception: {ex?.Message ?? string.Empty}";
             }
             Log.Debug("FormatLocation: ", "formatingData...");
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append("Latitude: ");
-            stringBuilder.Append(location.Latitude.ToString());
+            stringBuilder.Append(location.Latitude);
             stringBuilder.Append(" , Longitude: ");
-            stringBuilder.Append(location.Longitude.ToString());
+            stringBuilder.Append(location.Longitude);
             stringBuilder.Append(" , Accuracy: ");
-            stringBuilder.Append(location.Accuracy.ToString());
+            stringBuilder.Append(location.Accuracy);
             stringBuilder.Append(" , Altitude: ");
             stringBuilder.Append((location.Altitude.HasValue ? location.Altitude.Value.ToString() : notAvailable));
             stringBuilder.Append(" , AltitudeRef: ");
-            stringBuilder.Append(location.AltitudeReferenceSystem.ToString());
+            stringBuilder.Append(location.AltitudeReferenceSystem);
             stringBuilder.Append(" , VerticalAccuracy: ");
             stringBuilder.Append((location.VerticalAccuracy.HasValue ? location.VerticalAccuracy.Value.ToString() : notAvailable));
             stringBuilder.Append(" , Course: ");
@@ -178,11 +251,11 @@ namespace HPISMARTUI.Services
                 $"Latitude: {location.Latitude}\n" +
                 $"Longitude: {location.Longitude}\n" +
                 $"HorizontalAccuracy: {location.Accuracy}\n" +
-                $"Altitude: {(location.Altitude.HasValue ? location.Altitude.Value.ToString() : notAvailable)}\n" +
+                $"Altitude: {(location.Altitude.HasValue ? location.Altitude.SetValue.ToString() : notAvailable)}\n" +
                 $"AltitudeRefSys: {location.AltitudeReferenceSystem.ToString()}\n" +
-                $"VerticalAccuracy: {(location.VerticalAccuracy.HasValue ? location.VerticalAccuracy.Value.ToString() : notAvailable)}\n" +
-                $"Heading: {(location.Course.HasValue ? location.Course.Value.ToString() : notAvailable)}\n" +
-                $"Speed: {(location.Speed.HasValue ? location.Speed.Value.ToString() : notAvailable)}\n" +
+                $"VerticalAccuracy: {(location.VerticalAccuracy.HasValue ? location.VerticalAccuracy.SetValue.ToString() : notAvailable)}\n" +
+                $"Heading: {(location.Course.HasValue ? location.Course.SetValue.ToString() : notAvailable)}\n" +
+                $"Speed: {(location.Speed.HasValue ? location.Speed.SetValue.ToString() : notAvailable)}\n" +
                 $"Date (UTC): {location.Timestamp:d}\n" +
                 $"Time (UTC): {location.Timestamp:T}\n" +
                 $"Mocking Provider: {location.IsFromMockProvider}";*/

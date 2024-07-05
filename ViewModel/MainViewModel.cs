@@ -7,8 +7,8 @@
 ** Serial Input | Output pre-defined Commands.                                   **
 ** Used For Communicate   Between UI and MicroController.                        **
 ** Created in sat 1403/01/025 18:40 PM By Hosein Pirani                          **
-**  Modified In sat 1403/02/29 13:00 PM To 20:00 by hosein pirani                **
-**  :GPS-SMS-Fonts.                                                              **
+**  Modified In sat 1403/03/18 14:00 PM To 22:04 by hosein pirani                **
+**  :Xaml Style... Some Methods...                                               **
 **                                                                               **
 ** TODO:Complete Siren Player.                                                   **
 ** TODO: Complete Serial Functions in TryParse()                                 **
@@ -30,6 +30,7 @@
 
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Maui.Core;
 using System;
 using System.Linq;
 using System.Text;
@@ -79,6 +80,9 @@ using Android.Content.Res;
 using Java.Sql;
 using MauiPageFullScreen;
 using Xamarin.KotlinX.Coroutines;
+using Java.Util;
+using Plugin.Maui.ScreenBrightness;
+using Android.Telecom;
 //using Microsoft.Maui.Controls;
 
 
@@ -87,121 +91,117 @@ namespace HPISMARTUI.ViewModel
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MainViewModel : ObservableObject//, IQueryAttributable
     {
+        public IScreenBrightness _screenBrightness;
+
         [ObservableProperty]
-        ENGINEstate estate = new ENGINEstate();
-        AndroidLocationManager aLocationManager = new AndroidLocationManager();
-        public Serial_OUTCommands serial_out_Command = new();
-        Serial_InCommands serial_In_Commands = new();
-        //Main Background
-
-        //chart
-
+        ENGINEstate estate = new();
+        //readonly AndroidLocationManager aLocationManager = new();
 
         //
-
-        List<String> BackgroundImages = new();
+        //Main Background
+        readonly List<string> BackgroundImages = [];
         [ObservableProperty]
-        public String backgroundSource = new("bg_b.png");
+        public string backgroundSource = new("bg_b.png");
         //
         private IAudioPlayer SirenPlayer;
-
         // //////////////////////////////////////////////
         // SMS
-        private static int REQUEST_PERMISSION_READ_STATE = 1;
-        private static int REQUEST_GET_SMS_SUB_ID = 2;
-        private static ComponentName SETTINGS_SUB_PICK_ACTIVITY = new ComponentName(
+        private static int REQUEST_PERMISSION_READ_STATE => 1;
+        private static int REQUEST_GET_SMS_SUB_ID => 2;
+        private static ComponentName SETTINGS_SUB_PICK_ACTIVITY => new(
             "com.android.settings", "com.android.settings.sim.SimDialogActivity");
         // Can't import PERFORM_IMS_SINGLE_REGISTRATION const directly beause it's a @SystemApi
-        private static String PERFORM_IMS_SINGLE_REGISTRATION =
+        private static string PERFORM_IMS_SINGLE_REGISTRATION =>
             "android.permission.PERFORM_IMS_SINGLE_REGISTRATION";
-        private static String DIALOG_TYPE_KEY = "dialog_type";
-        public static String RESULT_SUB_ID = "result_sub_id";
-        private static int SMS_PICK = 2;
-        public static int sMessageId = 0;
-        public int m_sMessageId = sMessageId;
+        private static string DIALOG_TYPE_KEY => "dialog_type";
+        public static string RESULT_SUB_ID => "result_sub_id";
+        private static readonly int SMS_PICK = 2;
+        public static  int SmessageId = 0;
+        public int m_sMessageId = SmessageId;
         public bool mIsReadPhoneStateGranted = true;
-        public String mPhoneNumber = "+989379223570";
+        public string mPhoneNumber = "+989379223570";
         //
         //GPS
-        private int GpsUpdate_TimerInterval = 3; //TODO: Set Currect Value. 
-        System.Timers.Timer TimerGps;
+        private readonly int GpsUpdate_TimerInterval = 3; //TODO: Set Currect SetValue. 
+        readonly System.Timers.Timer TimerGps;
 
-
-
-        //TextToSpeech.
-
-
-
-
+#region XamlBindings
         //Xaml Bindings
         [ObservableProperty]
-        private Color smallLightclr;
+        private float brightness;
+
         [ObservableProperty]
-        private int displayBatteryLevel;
+        private double bikeSpeed=0.0d;
         [ObservableProperty]
-        private int displayFuelLevel;
+        private double bikeAcceleration=0.0d;
         [ObservableProperty]
-        private int displayEngineTemp;
+        private string displayBatteryInfo ="12.2V 99%"; //Display Battery Voltage And Level.
         [ObservableProperty]
-        private int displayEngineRPM;
+        private int displayFuelLevel=0; // Display Current FuelLevel.
+        [ObservableProperty]
+        private float displayEngineTemp=0.0f; //Store Engine Temperature
+        [ObservableProperty]
+        private bool displayOverTemp = false;//Engine Is Over Temp?
+        [ObservableProperty]
+        private int displayEngineRPM=0;
+        [ObservableProperty]
+        private byte autoStartDelay = 3;//Delay Between Command And AutoStart.
+        [ObservableProperty]
+        private int headblinkDelay = 150; //Headlight Blink Frequency. 
         //SMS
-        [ObservableProperty]
-        private String smsMessage = "Hello From HPi!";
-        private List<String> OwnerNumbers = new();
+
         //GPS Location
         [ObservableProperty]
-        private String deviceLocation;
-/*        [ObservableProperty]
-        private double bikeSpeed = 0.0f;*/
-
+        private string deviceLocation;
+        private  Location RawLocation;
+       
+#endregion
 
         //Emergency 
         //SirenPlayer
+#region EmergencyOptions
         readonly IAudioManager audioManager;
-
-        System.Timers.Timer TimerEmergency;
+        private readonly List<string> OwnerNumbers = [];
+        readonly System.Timers.Timer TimerEmergency;
         [ObservableProperty]
         private int temergencyInterval = 15;//
         private bool EmergencyMessageSent;//flag
+        [ObservableProperty]
+        private string forgiveMessage = "Sorry, EveryThing Is OK. No Emergency^_^";
+#endregion
 
-
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+#region SerialOptions
+        //////////////
         /// <summary>
         /// Serial
         /// </summary>
-        [ObservableProperty]
-        bool isOpen = false;
+        
+        bool IsSerialPortOpen = false;
 
-        readonly string EncodingSend = "UTF-8";
-        readonly string EncodingReceive = "UTF-8";
+        static string EncodingSend_Serial => "UTF-8";
+        static string EncodingReceive_Serial => "UTF-8";
         //USB
         //public UsbDeviceInfo DeviceInfo { get; set; }
         //Serial Options(BAUD Rate etc...)
         readonly SerialOption serialOption = new();
         //USB
-        public ObservableCollection<UsbDeviceInfo> UsbDevices { get; } = new();
+        public ObservableCollection<UsbDeviceInfo> UsbDevices { get; } = [];
         //Receive Buffer
-        public string receivedata = "";
+        public string receiveSerialdata = "";
         //Send Buffer
         [ObservableProperty]
-        string sendData = "Hello!";//Just For Test With SendEntryValue Command.
+        string srialDataForSend = "Hello!";//Just For Test With SendEntryValue Command.
         //Input Serial Parser
-        private Dictionary<string, Action> _actions;
-        [ObservableProperty]
-        private string forgiveMessage = "Sorry, EveryThing Is OK. No Emergency^_^";
-
-        //private readonly List<String> SerialInCommandList = new();
+        private readonly Dictionary<string, Action> Serial_actions;
+        #endregion
 
 
 
-
-        /// <summary>
-        /// 
-        /// <see cref="MainViewModel"/>
-        /// 
-        /// </summary>
-        public MainViewModel()
+        public MainViewModel(IScreenBrightness screenBrightness)
         {
+            _screenBrightness = screenBrightness;
+            Brightness = _screenBrightness.Brightness;
+            // _screenBrightness.Brightness = 100.0f;
 
             //Emergency Call To Owner.
             TimerEmergency = new System.Timers.Timer(TimeSpan.FromSeconds(TemergencyInterval));
@@ -220,112 +220,141 @@ namespace HPISMARTUI.ViewModel
             OwnerNumbers.Add("+989963042714");
             OwnerNumbers.Add("+989382532699");
 
-            ParseSerialCommands();
+            //ParseSerialCommands();
+            // Register Serial Actions
+            Serial_actions = new Dictionary<string, Action>
+            {
+                {Serial_InCommands.InSerial_AlarmSilenced_cmd, async ()=>await DoEmergencyState(false) },
+                {Serial_InCommands.InSerial_ALarmSourceIsMicro_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),false) },//Not Implemented.
+                {Serial_InCommands.InSerial_HeadLightIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),true) },
+                {Serial_InCommands.InSerial_AlarmSourceIsUI_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),true) },//Not Implemented.
+                {Serial_InCommands.InSerial_AllBlinkersIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),false) },
+                {Serial_InCommands.InSerial_AllBlinkersIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),true) },
+                {Serial_InCommands.InSerial_HeadBlinkIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),false)},
+                {Serial_InCommands.InSerial_HeadBlinkIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),true)},
+                {Serial_InCommands.InSerial_BlinkDanceIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),false)},
+                {Serial_InCommands.InSerial_BlinkDanceIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),true)},
+                {Serial_InCommands.InSerial_ENGINEisOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),false)},
+                {Serial_InCommands.InSerial_ENGINEisON_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),true)},
+                {Serial_InCommands.InSerial_HeadLightIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),false)},
+                {Serial_InCommands.InSerial_LeftTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),false)},
+                {Serial_InCommands.InSerial_LeftTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),true)},
+                {Serial_InCommands.InSerial_PoliceLightsIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),false)},
+                {Serial_InCommands.InSerial_PoliceLightsIsOn_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),true)},
+                {Serial_InCommands.InSerial_RightTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),false)},
+                {Serial_InCommands.InSerial_RightTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),true)},
+                {Serial_InCommands.InSerial_ShakeDetected_cmd,async ()=>await DoEmergencyState(true)},//Not Implemented.
+              //  {serial_In_Commands.InSerial_SirenIsOFF_cmd,()=>Function1()},//Not Implemented.
+               // {serial_In_Commands.InSerial_SirenIsOn_cmd,()=>Function1()}, //Not Implemented.
+                //Startup message.
+                {Serial_InCommands.InSerial_STARTUP_cmd,()=>Function2() }//Not Implemented.
 
+
+            };
+
+            /////////////
             SerialPortHelper.WhenUsbDeviceAttached((usbDevice) =>
             {
-                GetUsbDevices();
+
+                Dispatcher.GetForCurrentThread().Dispatch(async () => { await GetUsbDevices(); });
             });
 
             SerialPortHelper.WhenUsbDeviceDetached((usbDevice) =>
             {
-                GetUsbDevices();
+                Dispatcher.GetForCurrentThread().Dispatch(async () => { await GetUsbDevices(); });
 
             });
 
             SerialPortHelper.WhenDataReceived().Subscribe(data =>
             {
-                receivedata = SerialPortHelper.GetData(data, EncodingReceive);
-                TryParseInput(receivedata);
+                receiveSerialdata = SerialPortHelper.GetData(data, EncodingReceive_Serial);
+                TryParseInput(receiveSerialdata);
             });
 
 
             //Messenger
+            //Send StartListening To LocationManager.
+            WeakReferenceMessenger.Default.Send(new ALocationManagerCommunications("StartListening"));
+
             WeakReferenceMessenger.Default.Register<MainViewModel, Messages.DeviceLocationMessage>
-                (this,(recipient, message) =>
+                (this, (recipient, message) =>
             {
                 recipient.DeviceLocation = message.Value;
-              Log.Debug("Messenger", "Received Location Message!");
+                Log.Debug("Messenger", "Received Location Message!");
 
-           });
+            });
+
+            WeakReferenceMessenger.Default.Register<MainViewModel, RawDeviceLocationMessage>(this, (recipient, message) =>
+            {
+                RawLocation = message.Value;
+                if (RawLocation != null)
+                {
+                    if (RawLocation.Speed.HasValue)
+                    {
+
+                      var  speed_MetersPerMinute = RawLocation.Speed.Value * 60.0d;
+                        // speed_MetersPerHours = speed_MetersPerMinute * 60.0f;
+                        //BikeSpeed = speed_MetersPerHours  / 1000.0f; // divide to 1000 (Meters Per KM)
+                        BikeSpeed = speed_MetersPerMinute * 0.06d; // Equal With: speed_MetersPerMinute * 60 / 1000
+                       // BikeAcceleration = RawLocation.
+                    } else
+                    {
+                        BikeSpeed = 0.0d;
+                    }
+
+                }
+            });
+
+            WeakReferenceMessenger.Default.Register<MainViewModel, ALocationManagerToMainViewModel>(
+                this, (recipient, message) =>
+                {
+                    DisplayMessage(message.Value);
+                });
+
+
+                
+
+            //Write SettingItems To ECU
+            WeakReferenceMessenger.Default.Register<MainViewModel, Messages.WriteSettingToECUMessage>(
+                this, async (recipient, message) =>
+                {
+                    //  await  Shell.Current.DisplayAlert("WritingSettingsToECU", message.Value, "OK");
+
+                    await Task.Delay(TimeSpan.FromMilliseconds(1));
+
+                    SendSerialData(message.Value);
+                    await Task.Delay(TimeSpan.FromMilliseconds(1));
+
+                });
 
             //Chart
-     
+
         }
 
-
-
-        /* public void ApplyQueryAttributes(IDictionary<string, object> query)
-            {
-           GetUsbDevices();
-            if (query.ContainsKey("Serial"))
-           {
-               DeviceInfo = (UsbDeviceInfo)query["Serial"];
-                 Open();
-             }
-          }*/
-
-        [RelayCommand]
-        private void FullScreen()
+        protected virtual async  void  OnAppearing()
         {
-        Controls.ToggleFullScreenStatus();
+            await Shell.Current.DisplayPromptAsync(nameof(OnAppearing), "OnAppearing", "OK");
+            Controls.ToggleFullScreenStatus();
         }
 
-
-        [RelayCommand]
-        private async Task LoadBackgroundImage()
+        public virtual async void OnDisappearing()
         {
-            DateTime date = DateTime.Today;
-
-            String PrevChange = await SecureStorage.Default.GetAsync("LastDate");
-
-         // var equal =  String.Equals(PrevChange, date.DayOfYear.ToString());
-
-            if ((PrevChange is null) || !(String.Equals(PrevChange, date.DayOfYear.ToString())))
-            {
-                await SecureStorage.Default.SetAsync("LastDate", date.DayOfYear.ToString());
-
-                BackgroundImages.Add("bg_a.png");
-                BackgroundImages.Add("bg_b.png");
-                BackgroundImages.Add("bg_c.png");
-                BackgroundImages.Add("bg_d.png");
-                BackgroundImages.Add("bg_e.png");
-                BackgroundImages.Add("bg_f.png");
-                BackgroundImages.Add("bg_g.png");
-                BackgroundImages.Add("bg_h.png");
-                BackgroundImages.Add("bg_i.png");
-                BackgroundImages.Add("bg_j.png");
-                BackgroundImages.Add("bg_k.png");
-                BackgroundImages.Add("bg_l.png");
-                BackgroundImages.Add("bg_m.png");
-                BackgroundImages.TrimExcess();
-                var random = new Random();
-                var retrivedeRandom = random.Next(BackgroundImages.Count);
-                Log.Debug("Random", retrivedeRandom.ToString());
-                try
-                {
-                    if (String.Equals(BackgroundSource, BackgroundImages[retrivedeRandom]))
-                    {
-                        retrivedeRandom = random.Next(BackgroundImages.Count);
-
-                    }
-                }
-                finally
-                {
-                    BackgroundSource = BackgroundImages[retrivedeRandom];
-
-                    AndroidPlatform.CurrentActivity.RequestedOrientation = ScreenOrientation.Landscape;
-                }
-            }
-             
+            await Shell.Current.DisplayPromptAsync(nameof(OnDisappearing), "OnDisappearing", "OK");
+            WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("StopListening"));
+            
         }
+
+
+
+
+
 
 
 
         // //////////////////////SMS Methods
+#region SMS
 
-
-        private  void SendOutgoingSms(String SMSmessage, String PhoneNumber = "+989012795933")
+        private void SendOutgoingSms(String SMSmessage, String PhoneNumber = "+989012795933")
         {
             String phoneNumber = mPhoneNumber;
             if (String.IsNullOrEmpty(phoneNumber))
@@ -337,11 +366,14 @@ namespace HPISMARTUI.ViewModel
             {
 
                 //SmsManager m = SmsManager.Default;
+#pragma warning disable CA1422 // Validate platform compatibility
                 SmsManager.Default.SendTextMessage(PhoneNumber, null, SMSmessage,
-                        PendingIntent.GetBroadcast(AndroidPlatform.CurrentActivity, sMessageId, GetSendStatusIntent(), 0),
+                        PendingIntent.GetBroadcast(AndroidPlatform.CurrentActivity, SmessageId, GetSendStatusIntent(), 0),
                         null);
+#pragma warning restore CA1422 // Validate platform compatibility
                 Log.Debug("SendOutgoingSms", "SmsManager called");
-                sMessageId++;
+                SmessageId++;
+                
             }
         }
 
@@ -356,14 +388,14 @@ namespace HPISMARTUI.ViewModel
             }
             if (mIsReadPhoneStateGranted)
             {
-                Intent sendSmsIntent = new Intent(nameof(SmsManagerTestService));
+                Intent sendSmsIntent = new(nameof(SmsManagerTestService));
                 sendSmsIntent.PutExtra(SmsManagerTestService.EXTRA_SEND_TEXT, SMSmessage);
                 sendSmsIntent.PutExtra(SmsManagerTestService.EXTRA_SEND_NUMBER, PhoneNumber);
                 sendSmsIntent.PutExtra(SmsManagerTestService.EXTRA_SEND_INTENT,
-                        PendingIntent.GetBroadcast(AndroidPlatform.CurrentActivity.BaseContext, sMessageId, GetSendStatusIntent(), 0));
+                        PendingIntent.GetBroadcast(AndroidPlatform.CurrentActivity.BaseContext, SmessageId, GetSendStatusIntent(), 0));
                 sendSmsIntent.SetComponent(new ComponentName(AndroidPlatform.CurrentActivity.BaseContext, nameof(SmsManagerTestService)));
                 AndroidPlatform.CurrentActivity.BaseContext.StartService(sendSmsIntent);
-                sMessageId++;
+                SmessageId++;
                 Log.Debug("SendOutgoingSmsService", "called");
             }
         }
@@ -380,9 +412,10 @@ namespace HPISMARTUI.ViewModel
             }
             catch (ActivityNotFoundException anfe)
             {
-                // If Settings is not installed, only log the error as we do not want to break
+                // If SettingItems is not installed, only log the error as we do not want to break
                 // legacy applications.
-                Log.Debug("GetSubIdForResult", $"Unable to launch Settings application: {anfe.Message}");
+                
+                Log.Debug("GetSubIdForResult", $"Unable to launch SettingItems application: {anfe.Message}");
             }
         }
 
@@ -480,116 +513,90 @@ namespace HPISMARTUI.ViewModel
                 foreach (var num in OwnerNumbers)
                 {
                     SendOutgoingSms((forgive ? ForgiveMessage : DeviceLocation), num);
-                    await Task.Delay(1000);
+                   await Task.Delay(1000);
 
-                }
+            }
                 return;
             
             
         }
+        #endregion
+
 #region XamlCommands
 
-        
-
-
         [RelayCommand]
-        public async Task SMSAsync()
+        private async Task GotoSettingsPageAsync()
         {
 
-
-
-            //    getPhoneNumber();
-            // getSubIdForResult();
-            //   await Task.Delay(1000);
-            await TextToSpeech.SpeakAsync("Hello everybody!");
-            SendOutgoingSms(SmsMessage,mPhoneNumber);
-            //   await Task.Delay(100);
-            //  setPersistentServiceComponentEnabled();
-            //   await Task.Delay(100);
-            //   sendOutgoingSmsService();
-            //    await Task.Delay(100);
-            //   checkSingleRegPermission();
-
-            //   SmsManager.Default.SendTextMessage("+989379223570", null, "Hello Xamarin This is My Test SMS", null, null);
-
+            await Shell.Current.GoToAsync(nameof(MainPage), true);
 
         }
 
+
         [RelayCommand]
-        public async  Task GetLastLocation()
+        private async Task LoadBackgroundImage()
+        {
+            DateTime date = DateTime.Today;
+
+            String PrevChange = await SecureStorage.Default.GetAsync("LastDate");
+
+            // var equal =  String.Equals(PrevChange, date.DayOfYear.ToString());
+
+            if ((PrevChange is null) || !(String.Equals(PrevChange, date.DayOfYear.ToString())))
+            {
+                await SecureStorage.Default.SetAsync("LastDate", date.DayOfYear.ToString());
+
+                BackgroundImages.Add("bg_a.png");
+                BackgroundImages.Add("bg_b.png");
+                BackgroundImages.Add("bg_c.png");
+                BackgroundImages.Add("bg_d.png");
+                BackgroundImages.Add("bg_e.png");
+                BackgroundImages.Add("bg_f.png");
+                BackgroundImages.Add("bg_g.png");
+                BackgroundImages.Add("bg_h.png");
+                BackgroundImages.Add("bg_i.png");
+                BackgroundImages.Add("bg_j.png");
+                BackgroundImages.Add("bg_k.png");
+                BackgroundImages.Add("bg_l.png");
+                BackgroundImages.Add("bg_m.png");
+                BackgroundImages.TrimExcess();
+                var random = new System.Random();
+                var retrivedeRandom = random.Next(BackgroundImages.Count);
+                Log.Debug("Random", retrivedeRandom.ToString());
+                try
+                {
+                    if (String.Equals(BackgroundSource, BackgroundImages[retrivedeRandom]))
+                    {
+                        retrivedeRandom = random.Next(BackgroundImages.Count);
+
+                    }
+                }
+                finally
+                {
+                    BackgroundSource = BackgroundImages[retrivedeRandom];
+
+                    // AndroidPlatform.CurrentActivity.RequestedOrientation = ScreenOrientation.Landscape;
+                }
+            }
+
+        }
+
+
+        [RelayCommand]
+        public void GetLastLocation()
         {
             //WeakReferenceMessenger.Default.Send(new Messages.EngineState_HeadLightMessage(true));
             // await aLocationManager.GetLastLocation();
             //  Get_LastLocation();
             //   await Task.Delay(TimeSpan.FromSeconds(5));
-            await aLocationManager.GetDeviceLocation();
-            
-            
+             WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("GetLastLocation"));
+
+
         }
 
         //XamlCommands.
         //Sent To MCU.
-        /// <summary>
-        /// HeadLight Command.
-        /// Process HeadLight Command(ON?OFF?BLINK?).
-        /// </summary>
-        [RelayCommand]
-        public async Task HeadLightAsync()
-        {
 
-
-        }
-        //
-        /// <summary>
-        /// Test
-        /// </summary>
-        [RelayCommand]
-        public void SmallLight()
-        {
-            Estate.IsSmallLight_Enabled = !Estate.IsSmallLight_Enabled;
-        }
-
-        //
-        /// <summary>
-        /// RightTurn Command
-        /// Process Right Blinkers(ON?OFF?).
-        /// </summary>
-        [RelayCommand]
-        public async Task RightBlinkerAsync()
-        {
-        }
-        //
-        /// <summary>
-        /// MultiBlink Command.
-        /// prosses All blinkers(ON?OFF?DANCE?).
-        /// </summary>
-        [RelayCommand]
-        public async Task MultiBlinkAsync()
-        {
-        }
-        //
-        /// <summary>
-        /// SirenCommands.
-        /// Prosses Police lights(ON?OFF?LOUD?SILENTLY?).
-        /// </summary>
-        /// <returns></returns>
-        [RelayCommand]
-        public async Task PolicelightsAsync()
-        {
-
-        }
-        //
-        /// <summary>
-        /// SendEntryValueCommand
-        /// Just For Test. Will Be Removed.
-        /// </summary>
-        /// <returns></returns>
-        [RelayCommand]
-        public void SendEntryValue()
-        {
-            Send(SendData);
-        }
-        //
         /// <summary>
         /// Send UI Commands To MCU
         /// </summary>
@@ -599,14 +606,64 @@ namespace HPISMARTUI.ViewModel
         {
             if (!String.IsNullOrEmpty(command))
             {
-                Send(command);
+
+                string action;//???
+
+                //Process AutoStart and Or HeadLight Blinker.
+                if ((string.Equals(command, "AutoStart")) || (string.Equals(command, "ToggleHeadBlink")))
+                {
+                    StringBuilder stringBuilder = new();
+                    if (string.Equals(command, "AutoStart"))
+                    {
+                        stringBuilder.Clear();
+                        stringBuilder.Append("ASE:");
+                        stringBuilder.Append(AutoStartDelay);
+                        action = stringBuilder.ToString();
+                    } else
+                    {
+                        if (Estate.IsHeadBlink_Enabled)
+                        {
+                            action = Serial_OutCommands.OutSerial_HeadBlinkOFF_cmd;
+                        } else
+                        {
+
+                            stringBuilder.Clear();
+                            stringBuilder.Append("HBO:");
+                            stringBuilder.Append(HeadblinkDelay);
+                            action = stringBuilder.ToString();
+                        }
+                    }
+                    
+                    
+                } else
+                {
+                    // Procces Touch Commands
+                    action = command switch 
+                    { //Turn off if HeadLight Is On.
+                        "ToggleHeadLight" => Estate.IsHeadLight_Enabled ? Serial_OutCommands.OutSerial_HeadLightOFF_cmd : Serial_OutCommands.OutSerial_HeadLightON_cmd,
+                        "ToggleLeftTurn" => Estate.IsLeftTurn_Enabled ? Serial_OutCommands.OutSerial_LeftBlinkOFF_cmd : Serial_OutCommands.OutSerial_LeftBlinkON_cmd,
+                        "ToggleRightTurn" => Estate.IsRightTurn_Enabled ? Serial_OutCommands.OutSerial_RightBlinkOFF_cmd : Serial_OutCommands.OutSerial_RightBlinkON_cmd,
+                        "ToggleMultiblinker" => Estate.IsMultiblink_Enabled ? Serial_OutCommands.OutSerial_MultiBlinkOFF_cmd : Serial_OutCommands.OutSerial_MultiBlinkON_cmd,
+                        "ToggleBlinkDance" => Estate.IsBlinkDance_Enabled ? Serial_OutCommands.OutSerial_BlinkerDanceOFF_cmd : Serial_OutCommands.OutSerial_BlinkerDanceON_cmd,
+                        "TogglePoliceLights" => Estate.IsPOliceLight_Enabled ? Serial_OutCommands.OutSerial_PoliceLightOFF_cmd : Serial_OutCommands.OutSerial_PoliceLightON_cmd,
+                        "ForceAutoStart" => Estate.IsENGINE_ON ? "" : "ASE:100",
+
+                        _ => throw new NotImplementedException(),
+
+                    };
+                    
+                }
+
+              await  Shell.Current.DisplayAlert("AutoStart Result", action, "OK");
+                SendSerialData(action);
             }
         }
-#endregion
+        #endregion
 
-        /////////////////////////////////////////////////////////
-        //Serial Commands
-        [RelayCommand]
+    /////
+    //Serial Commands
+#region SerialCommunication
+        //[RelayCommand]
         public async Task GetUsbDevices()
         {
             UsbDevices.Clear();
@@ -622,20 +679,20 @@ namespace HPISMARTUI.ViewModel
 
             if (UsbDevices.Count > 0)
             {
-              await  Open();
+              await  OpenSerialPort();
             } else
             {
-                Close();
+                CloseSerialPort();
             }
 
 
         }
 
 
-        [RelayCommand]
-        public async Task Open()
+        //[RelayCommand]
+        public async Task OpenSerialPort()
         {
-            if (!IsOpen)
+            if (!IsSerialPortOpen)
             {
                 string r = await SerialPortHelper.RequestPermissionAsync(UsbDevices.FirstOrDefault());
                 if (SerialPortHelper.CheckError(r, showDialog: false))
@@ -644,14 +701,14 @@ namespace HPISMARTUI.ViewModel
                     if (SerialPortHelper.CheckError(r, showDialog: false))
                     {
                         //Opened Successfully
-                        Log.Info("Open", "Opened Successfully");
-                        IsOpen = true;
+                        Log.Info("OpenSerialPort", "Opened Successfully");
+                        IsSerialPortOpen = true;
                         await Task.Delay(TimeSpan.FromSeconds(2));
                         // Send();
 
                     } else
                     {
-                        Log.Info("Open", "OPen Error");
+                        Log.Info("OpenSerialPort", "OPen Error");
                     }
                 } else
                 {
@@ -659,14 +716,14 @@ namespace HPISMARTUI.ViewModel
                 }
             }
         }
-        [RelayCommand]
-        public void Close()
+      //  [RelayCommand]
+        public void CloseSerialPort()
         {
             try
             {
                 SerialPortHelper.Close();
                 //  CycleToSend = false;
-                IsOpen = false;
+                IsSerialPortOpen = false;
             }
             catch (Exception)
             {
@@ -674,52 +731,55 @@ namespace HPISMARTUI.ViewModel
 
         }
 
-        [RelayCommand]
-        public void Send(String Data)
+        /// <summary>
+        /// Send Data To (USB) Serial Port
+        /// </summary>
+        /// <param name="Data"> String Data To Be Sended</param>
+      //  [RelayCommand]
+        public void SendSerialData(String Data)
         {
-
-
-            byte[] send = SerialPortHelper.GetBytes(Data, EncodingSend);
-            if (send.Length == 0)
+            if (IsSerialPortOpen)
             {
-                return;
-            }
-            string r = SerialPortHelper.Write(send);
-            if (SerialPortHelper.CheckError(r))
-            {
-                if (EncodingSend == "HEX")
+                byte[] send = SerialPortHelper.GetBytes(Data, EncodingSend_Serial);
+                if (send.Length == 0)
                 {
-                    //   AddLog(new SerialLog(SendData.ToUpper(), true));
+                    return;
+                }
+                string r = SerialPortHelper.Write(send);
+                if (SerialPortHelper.CheckError(r))
+                {
+                    if (EncodingSend_Serial == "HEX")
+                    {
+                        //   AddLog(new SerialLog(SendData.ToUpper(), true));
+                    } else
+                    {
+                        //  AddLog(new SerialLog(SendData, true));
+                         Shell.Current.DisplayAlert("SendSerialData:", SrialDataForSend, "Ok");
+                    }
                 } else
                 {
-                    //  AddLog(new SerialLog(SendData, true));
-
-                    _ = Shell.Current.DisplayAlert("Send:", SendData, "Ok");
-
-
-
+                    //   AddLog(new SerialLog(r, true));
+                     Shell.Current.DisplayAlert("SendSerialData Error!", r, "Ok");
                 }
-
-            } else
-            {
-                //   AddLog(new SerialLog(r, true));
-                _ = Shell.Current.DisplayAlert("Send Error!", r, "Ok");
             }
 
         }
 
         private void TryParseInput(string input)
-        {
-            Log.Debug("Received", "${input}");
-            Estate.IsSmallLight_Enabled = true;
-            if (_actions.TryGetValue(input, out Action value))
+        {            
+            if(IsSerialPortOpen)
             {
-                value.Invoke();
-            } else
-            {
-                Log.Debug("Try", "NotEqual");
-                //Numerical Commands 
-                ParseNumericalCommands(input);
+                Log.Debug("Received", "${input}");
+                Estate.IsSmallLight_Enabled = true;
+                if (Serial_actions.TryGetValue(input, out Action value))
+                {
+                    value.Invoke();
+                } else
+                {
+                    Log.Debug("Try", "NotEqual");
+                    //Numerical Commands 
+                    ParseNumericalCommands(input);
+                }
             }
 
         }
@@ -743,10 +803,15 @@ namespace HPISMARTUI.ViewModel
                 DisplayFuelLevel = SubString_and_ToInt(input, ":");
             } else if (is_BatteryLevel)
             {
-                DisplayBatteryLevel = SubString_and_ToInt(input, ":");
+                //Format BatteryLevel
+                var BatteryLevel = SubString_and_ToInt(input, ":");
+                 DisplayBatteryInfo = Utilities.FormatBatteryInfo(BatteryLevel);
+
             } else if (is_Temp)
             {
                 DisplayEngineTemp = SubString_and_ToInt(input, ":");
+                DisplayOverTemp = DisplayEngineTemp >= 200.0f;
+
             } else
             {
                 await Shell.Current.DisplayAlert(input, "Failed To Parse Numerical Commands.", "OK");
@@ -755,7 +820,14 @@ namespace HPISMARTUI.ViewModel
 
         }
 
-        private int SubString_and_ToInt(String str, String SubValue)
+        /// <summary>
+        /// Retrives Number From Serial Data after given character(Subvalue).
+        /// </summary>
+        /// <param name="str">String To Be Prosseced</param>
+        /// <param name="SubValue">String Before Number</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private static int SubString_and_ToInt(String str, String SubValue)
         {
             if ((String.IsNullOrEmpty(str)) || (String.IsNullOrEmpty(SubValue))) return 0;
             int position = str.IndexOf(SubValue);
@@ -799,6 +871,7 @@ namespace HPISMARTUI.ViewModel
                     break;
                 case nameof(Estate.IsENGINE_ON):
                     Estate.IsENGINE_ON = value;
+                    
                     break;
                 case nameof(Estate.IsLeftTurn_Enabled):
                     Estate.IsLeftTurn_Enabled = value;
@@ -821,40 +894,41 @@ namespace HPISMARTUI.ViewModel
 
 
         }
+        #endregion
+
+#region Timers
+        /*        void ParseSerialCommands()
+                {
+                    Serial_actions = new Dictionary<string, Action>
+                    {
+                        {Serial_InCommands.InSerial_AlarmSilenced_cmd, async ()=>await DoEmergencyState(false) },
+                        {Serial_InCommands.InSerial_ALarmSourceIsMicro_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),false) },//Not Implemented.
+                        {Serial_InCommands.InSerial_HeadLightIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),true) },
+                        {Serial_InCommands.InSerial_AlarmSourceIsUI_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),true) },//Not Implemented.
+                        {Serial_InCommands.InSerial_AllBlinkersIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),false) },
+                        {Serial_InCommands.InSerial_AllBlinkersIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),true) },
+                        {Serial_InCommands.InSerial_HeadBlinkIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),false)},
+                        {Serial_InCommands.InSerial_HeadBlinkIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),true)},
+                        {Serial_InCommands.InSerial_BlinkDanceIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),false)},
+                        {Serial_InCommands.InSerial_BlinkDanceIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),true)},
+                        {Serial_InCommands.InSerial_ENGINEisOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),false)},
+                        {Serial_InCommands.InSerial_ENGINEisON_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),true)},
+                        {Serial_InCommands.InSerial_HeadLightIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),false)},
+                        {Serial_InCommands.InSerial_LeftTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),false)},
+                        {Serial_InCommands.InSerial_LeftTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),true)},
+                        {Serial_InCommands.InSerial_PoliceLightsIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),false)},
+                        {Serial_InCommands.InSerial_PoliceLightsIsOn_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),true)},
+                        {Serial_InCommands.InSerial_RightTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),false)},
+                        {Serial_InCommands.InSerial_RightTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),true)},
+                        {Serial_InCommands.InSerial_ShakeDetected_cmd,async ()=>await DoEmergencyState(true)},//Not Implemented.
+                      //  {serial_In_Commands.InSerial_SirenIsOFF_cmd,()=>Function1()},//Not Implemented.
+                       // {serial_In_Commands.InSerial_SirenIsOn_cmd,()=>Function1()}, //Not Implemented.
+                        //Startup message.
+                        {Serial_InCommands.InSerial_STARTUP_cmd,()=>Function2() }//Not Implemented.
 
 
-        void ParseSerialCommands()
-        {
-            _actions = new Dictionary<string, Action>
-            {
-                {serial_In_Commands.InSerial_AlarmSilenced_cmd, async ()=>await DoEmergencyState(false) },
-                {serial_In_Commands.InSerial_ALarmSourceIsMicro_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),false) },//Not Implemented.
-                {serial_In_Commands.InSerial_HeadLightIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),true) },
-                {serial_In_Commands.InSerial_AlarmSourceIsUI_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),true) },//Not Implemented.
-                {serial_In_Commands.InSerial_AllBlinkersIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),false) },
-                {serial_In_Commands.InSerial_AllBlinkersIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),true) },
-                {serial_In_Commands.InSerial_HeadBlinkIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),false)},
-                {serial_In_Commands.InSerial_HeadBlinkIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),true)},
-                {serial_In_Commands.InSerial_BlinkDanceIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),false)},
-                {serial_In_Commands.InSerial_BlinkDanceIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),true)},
-                {serial_In_Commands.InSerial_ENGINEisOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),false)},
-                {serial_In_Commands.InSerial_ENGINEisON_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),true)},
-                {serial_In_Commands.InSerial_HeadLightIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),false)},
-                {serial_In_Commands.InSerial_LeftTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),false)},
-                {serial_In_Commands.InSerial_LeftTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),true)},
-                {serial_In_Commands.InSerial_PoliceLightsIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),false)},
-                {serial_In_Commands.InSerial_PoliceLightsIsOn_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),true)},
-                {serial_In_Commands.InSerial_RightTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),false)},
-                {serial_In_Commands.InSerial_RightTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),true)},
-                {serial_In_Commands.InSerial_ShakeDetected_cmd,async ()=>await DoEmergencyState(true)},//Not Implemented.
-              //  {serial_In_Commands.InSerial_SirenIsOFF_cmd,()=>Function1()},//Not Implemented.
-               // {serial_In_Commands.InSerial_SirenIsOn_cmd,()=>Function1()}, //Not Implemented.
-                //Startup message.
-                {serial_In_Commands.InSerial_STARTUP_cmd,()=>Function2() }//Not Implemented.
-
-
-            };
-        }
+                    };
+                }*/
         //TIMERS
         //
         /// <summary>
@@ -870,23 +944,31 @@ namespace HPISMARTUI.ViewModel
             SendEmergencySMS();
        EmergencyMessageSent = true; 
         }
-        //
+       
         /// <summary>
-        /// Timer For GPS Location Updates.
+        /// Timer For GPS Location Updates. The Location will  Update Permanently For More Security.
         /// </summary>
-
-        /// 
         private async void TimerGps_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            //
+            
            
             
 
-              await aLocationManager.GetDeviceLocation();
-            
-        }
+             
+            WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("GetLastLocation"));
 
-        private  async Task DoEmergencyState(bool Emergency)
+        }
+        #endregion
+
+#region EmergencyAndSiren
+        /// <summary>
+        /// 
+        /// Emergency State
+        /// </summary>
+        /// <param name="Emergency"></param>
+        /// <returns></returns>
+        /// TODO: Add Emergency ShutDown Mode.
+        private async Task DoEmergencyState(bool Emergency)
         {
             if (Emergency)
             {
@@ -915,8 +997,19 @@ namespace HPISMARTUI.ViewModel
             }
 
         }
+#region Brightness
+/*        public void SetBrightness(float brightness)
+        {
+            Android.Views.Window window = AndroidPlatform.CurrentActivity.Window;
+         //   var attributesWindow = new WindowManagerLayoutParams();
 
-
+          // attributesWindow.CopyFrom(window.Attributes);
+            window.Attributes.ScreenBrightness = brightness;
+           // attributesWindow.ScreenBrightness = brightness;
+           
+         //   window.Attributes = attributesWindow;
+        }*/
+        #endregion
         private async Task DoSirenSound(bool play)
         {
             if (play)
@@ -933,18 +1026,22 @@ namespace HPISMARTUI.ViewModel
             }
         }
 
+#endregion
 
         void Function2()
         {
             Log.Debug("Function2", "HelloFromFunc2");
             Estate.IsSmallLight_Enabled = false;
-            SmallLightclr = Estate.SmallLightColor;
+            
         }
 
 
         //Location
 
-
+        static async void DisplayMessage(string message, string title = "Note", string ok = "OK")
+        {
+            await Shell.Current.DisplayAlert(title, message, ok);
+        }
 
 
 
@@ -970,4 +1067,17 @@ namespace HPISMARTUI.Messages// CommunityToolkit.Mvvm.Messaging.Messages
     public class DeviceLocationMessage(String value) : ValueChangedMessage<String>(value)
     {
     }
+    public class RawDeviceLocationMessage(Location value) : ValueChangedMessage<Location>(value)
+    {
+    }
+    public class ALocationManagerCommunications(String value) : ValueChangedMessage<String>(value)
+    {
+    }
+    public class ALocationManagerToMainViewModel(String value) : ValueChangedMessage<String>(value)
+    {
+    }
+    public class WriteSettingToECUMessage(String value) : ValueChangedMessage<String>(value)
+    {
+    }
+
 }

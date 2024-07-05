@@ -59,7 +59,10 @@ using HPISMARTUI.ViewModel;
 using System.Collections;
 using Microsoft.Extensions.FileProviders;
 using HPISMARTUI.Services;
+using CommunityToolkit.Maui.Core;
 using AndroidPlatform = Microsoft.Maui.ApplicationModel.Platform;
+using Plugin.Maui.ScreenBrightness;
+using Microsoft.Maui.Controls.Internals;
 
 namespace HPISMARTUI.View
 {
@@ -67,8 +70,9 @@ namespace HPISMARTUI.View
     public partial class MainPage : ContentPage
         {
         MainViewModel vm;
-      //  ContextWrapper ContextWrapper = AndroidPlatform.CurrentActivity;
         
+        //  ContextWrapper ContextWrapper = AndroidPlatform.CurrentActivity;
+
         private static int REQUEST_PERMISSION_READ_STATE = 1;
 
 
@@ -85,6 +89,7 @@ namespace HPISMARTUI.View
         }
         protected override async void OnAppearing()
         {
+            
             base.OnAppearing();
             
 
@@ -95,7 +100,9 @@ namespace HPISMARTUI.View
             {
                 vm.mIsReadPhoneStateGranted = false;
                 AndroidPlatform.CurrentActivity.RequestPermissions(new String[]{Manifest.Permission.ReadPhoneState,
-                    Manifest.Permission.SendSms}, REQUEST_PERMISSION_READ_STATE);
+                    Manifest.Permission.SendSms,Manifest.Permission.CallPhone,Manifest.Permission.CallPrivileged}, REQUEST_PERMISSION_READ_STATE);
+
+                
             } else
             {
                // await Shell.Current.DisplayAlert("SMS Permission","Granted","OK");
@@ -111,9 +118,9 @@ namespace HPISMARTUI.View
                 System.Environment.Exit(0);
                 return;
             }
-            vm.GetUsbDevices();
+       //     MainThread.BeginInvokeOnMainThread(async () => { await vm.GetUsbDevices(); });
 
-            // Random Background Image.Changes EVERY DAY.
+            
 
 
         }
@@ -127,12 +134,13 @@ namespace HPISMARTUI.View
         protected override  bool OnBackButtonPressed()
         {
             
-            var uaction = Shell.Current.DisplayPromptAsync("Exit", "Exit?", "Yes", "No");
-            if (uaction.Result.Equals("Yes"))
+            var uaction =  Shell.Current.DisplayAlert("Exit", "Exit?", "Yes", "No");
+            if (uaction.AsAsyncValue().Value is true)
             {
                 //System.Environment.Exit(0);
                 App.Current.Quit();
             }
+           Shell.Current.DisplayAlert("AlertResult",uaction.Result.ToString(),"OK");
             base.OnBackButtonPressed();
             return true;
         }

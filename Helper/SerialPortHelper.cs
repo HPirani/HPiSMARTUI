@@ -170,13 +170,13 @@ namespace HPISMARTUI.Helper
             IsDeviceOpen = false;
             _port?.Close();
         }
-        public static string Write(byte[] data)
+        public  static string Write(byte[] data)
         {
             try
             {
                 if (serialIoManager.IsOpen)
                 {
-                    _port.Write(data, WRITE_WAIT_MILLIS);
+                   _port.Write(data, WRITE_WAIT_MILLIS);
                     return "";
                 }
                 else

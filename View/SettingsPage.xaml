@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:local="clr-namespace:HPISMARTUI"
+             xmlns:model="clr-namespace:HPISMARTUI.Model"
+             xmlns:viewmodel="clr-namespace:HPISMARTUI.ViewModel"
+             xmlns:templates="clr-namespace:HPISMARTUI.Templates"
+    Shell.PresentationMode="Animated"
+    x:DataType="viewmodel:SettingsViewModel"
+             x:Class="HPISMARTUI.View.SettingsPage"
+             Title="SettingsPage">
+    <!--x:DataType="viewmodel:SettingsViewModel"-->
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style
+                x:Key="HeaderLabel"
+                TargetType="{x:Type Label}">
+                <Setter
+                    Property="FontSize"
+                    Value="Large" />
+                <Setter
+                    Property="TextColor"
+                    Value="Black" />
+            </Style>
+        </ResourceDictionary>
+        <ResourceDictionary>
+            <Style
+                x:Key="DescriptionLabel"
+                TargetType="{x:Type Label}">
+                <Setter
+                    Property="FontSize"
+                    Value="Medium" />
+                <Setter
+                    Property="TextColor"
+                    Value="Gray" />
+            </Style>
+        </ResourceDictionary>
+        <ResourceDictionary>
+            <Style
+                x:Key="SliderStyle"
+                TargetType="{x:Type Slider}">
+                <Setter
+                    Property="MaximumTrackColor"
+                    Value="LightGray" />
+                <Setter
+                    Property="MinimumTrackColor"
+                    Value="SkyBlue" />
+                <Setter
+                    Property="ThumbColor"
+                    Value="Red" />
+                
+            </Style>
+        </ResourceDictionary>
+        <ResourceDictionary>
+            <Style x:Key="EntryStyle"
+                   TargetType="{x:Type Entry}">
+                <Setter
+                    Property="BackgroundColor"
+                    Value="AliceBlue" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ScrollView>
+    <StackLayout
+        
+        Margin="20">
+       
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition 
+                    Height="Auto" />
+                <RowDefinition
+                    Height="Auto" />
+                <RowDefinition
+                    Height="Auto" />
+                <RowDefinition
+                    Height="Auto" />
+                <RowDefinition
+                    Height="Auto" />
+                <RowDefinition
+                    Height="Auto" />
+                <RowDefinition
+                    Height="Auto" />
+                <RowDefinition
+                    Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition
+                    Width="Auto" />
+                <ColumnDefinition
+                    Width="Auto" />
+                <ColumnDefinition
+                    Width="Auto" />
+            </Grid.ColumnDefinitions>
+<!--<ChildGrid>-->
+            <Grid Grid.Row="1"
+                Grid.Column="1">
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                </Grid.ColumnDefinitions>
+<!--MinServoAngle-->
+                    <Frame
+                        Grid.ColumnSpan="3"
+                        WidthRequest="713"
+                        Margin="-1,1,10,1">
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.ColumnSpan="3"
+                            Grid.Column="1">
+                            <Label
+                                Text="{Binding MinServoAngleName}"
+                                Style="{StaticResource HeaderLabel}" />
+                            <!--Description-->
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                Text="{Binding MinServoDescription}"
+                                Style="{StaticResource DescriptionLabel}" />
+                            <!--Preview Label-->
+                            <Entry
+                                Margin="00,0,00,0"
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                HorizontalOptions="StartAndExpand"
+                                Text="{Binding MinServoAngle,Mode=TwoWay}"
+                                Style="{StaticResource EntryStyle}" />
+                            <!--ValueSlider-->
+                            <Slider
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                x:Name="MinServoSlider"
+                                Minimum="{Binding MinimumAllowedMinServoAngle}"
+                                Maximum="{Binding MaximumAllowedMinServoAngle}"
+                                Style="{StaticResource SliderStyle}"
+                                Value="{Binding MinServoAngle,Mode=TwoWay}">
+                                <Slider.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="DragCompleted"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Slider.Behaviors>
+                            </Slider>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+       
+        <!--</childGrid>-->
+<!--child Grid-->
+            <Grid
+                Grid.Row="2"
+                Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                </Grid.ColumnDefinitions>
+<!--MaxServoAngle-->
+                    <Frame
+                        Grid.ColumnSpan="3"
+                        WidthRequest="713"
+                        Margin="-1,1,10,1">
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.ColumnSpan="3"
+                            Grid.Column="1">
+                            <Label
+                                Text="{Binding MaxServoAngleName}"
+                                Style="{StaticResource HeaderLabel}" />
+                            <!--Description-->
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                Text="{Binding MaxServoDescription}"
+                                Style="{StaticResource DescriptionLabel}" />
+                            <!--Preview Label-->
+                            <Entry
+                                Margin="00,0,00,0"
+                                Grid.Row="2"
+                                Grid.ColumnSpan="1"
+                                HorizontalOptions="StartAndExpand"
+                                Grid.Column="2"
+                                Text="{Binding MaxServoAngle,Mode=TwoWay}"
+                                Style="{StaticResource EntryStyle}" />
+                            <!--ValueSlider-->
+                            <Slider
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                x:Name="MaxServoSlider"
+                                Minimum="{Binding MinimumAllowedMaxServoAngle}"
+                                Maximum="{Binding MaximumAllowedMaxServoAngle}"
+                                Style="{StaticResource SliderStyle}"
+                                Value="{Binding MaxServoAngle,Mode=TwoWay}">
+                                <Slider.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="DragCompleted"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Slider.Behaviors>
+                            </Slider>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+<!--child Grid-->
+            <Grid
+                Grid.Row="3"
+                Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                </Grid.ColumnDefinitions>
+<!--Min Idle RPM-->
+                    <Frame Grid.ColumnSpan="3"
+                           WidthRequest="713"
+                        Margin="-1,1,10,1">
+                    <StackLayout>
+                        <Label
+                            Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1"
+                            Text="{Binding MinIdlerpmName}"
+                            Style="{StaticResource HeaderLabel}" />
+                    
+                    <!--Description-->
+                        <Label
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1"
+                            Text="{Binding MinIdlerpmDescription}"
+                            Style="{StaticResource DescriptionLabel}" />
+                    
+                    <!--Preview Label-->
+                    
+                        <Entry
+                            Grid.Row="2"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="2"
+                                HorizontalOptions="StartAndExpand"
+                                Margin="0,0,00,0"
+                                Text="{Binding MinIdleRPM,Mode=TwoWay}"
+                                Style="{StaticResource EntryStyle}" />
+                    
+                    <!--ValueSlider-->
+                    
+                        
+                        <Slider
+                            Grid.Row="3"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1"
+                            x:Name="RPMSlider"
+                            Minimum="{Binding MinimumAllowedMinIdleRPM}"
+                            Maximum="{Binding MaximumAllowedMinIdleRPM}"
+                            Style="{StaticResource SliderStyle}"
+                            Value="{Binding MinIdleRPM,Mode=TwoWay}">
+                            <Slider.Behaviors>
+                                <toolkit:EventToCommandBehavior
+                                    EventName="DragCompleted"
+                                    Command="{Binding UpdateSettingsCommand}" />
+                            </Slider.Behaviors>
+                        </Slider>
+                    </StackLayout>
+                    </Frame>
+                </Grid>
+            <!--/child Grid-->
+<!--child Grid-->
+            <Grid
+                Grid.Row="4"
+                Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                </Grid.ColumnDefinitions>
+<!--Blinkers Interval-->
+                    <Frame
+                        Grid.ColumnSpan="3"
+                        WidthRequest="713"
+                        Margin="-1,1,10,1">
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1">
+                            <Label
+                                Text="{Binding BlinkersIntervalName}"
+                                Style="{StaticResource HeaderLabel}" />
+                            <!--Description-->
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                Text="{Binding BlinkersIntervalDescription}"
+                                Style="{StaticResource DescriptionLabel}" />
+                            <!--Preview Label-->
+                            <Entry
+                                Margin="0,0,00,0"
+                                Grid.Row="2"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="2"
+                                HorizontalOptions="StartAndExpand"
+                                Text="{Binding BlinkersInterval,Mode=TwoWay}"
+                                Style="{StaticResource EntryStyle}" />
+                            <!--ValueSlider-->
+                            <Slider
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                x:Name="BlinkerSlider"
+                                Minimum="{Binding MinimumAllowedBlinkersInterval}"
+                                Maximum="{Binding MaximumAllowedBlinkersInterval}"
+                                Style="{StaticResource SliderStyle}"
+                                Value="{Binding BlinkersInterval,Mode=TwoWay}">
+                                <Slider.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="DragCompleted"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Slider.Behaviors>
+                            </Slider>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+            <!--/child Grid-->
+<!--child Grid-->
+            <Grid
+                Grid.Row="5"
+                Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                </Grid.ColumnDefinitions>
+<!--HeadBlink Interval-->
+                    <Frame
+                        Grid.ColumnSpan="3"
+                        WidthRequest="713"
+                        Margin="-1,1,10,1">
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1">
+                            <Label
+                                Text="{Binding HeadBlinkIntervalName}"
+                                Style="{StaticResource HeaderLabel}" />
+                            <!--Description-->
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                Text="{Binding HeadBlinkIntervalDescription}"
+                                Style="{StaticResource DescriptionLabel}" />
+                            <!--Preview Label-->
+                            <Entry
+                                Margin="100,0,00,0"
+                                Grid.Row="2"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="2"
+                                Text="{Binding HeadBlinkInterval, Mode=TwoWay}"
+                                Style="{StaticResource EntryStyle}" />
+                            <!--ValueSlider-->
+                            <Slider
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                x:Name="HeadBlinkSlider"
+                                Minimum="{Binding MinimumAllowedHeadBlinkInterval}"
+                                Maximum="{Binding MaximumAllowedHeadBlinkInterval}"
+                                Style="{StaticResource SliderStyle}"
+                                Value="{Binding HeadBlinkInterval,Mode=TwoWay}">
+                                <Slider.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="DragCompleted"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Slider.Behaviors>
+                            </Slider>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+            <!--/child Grid-->
+            
+<!--child Grid-->
+            <Grid
+                Grid.Row="6"
+                Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                </Grid.ColumnDefinitions>
+<!--Current Horn Mode-->
+                    <Frame
+                        Grid.ColumnSpan="3"
+                        WidthRequest="713"
+                        Margin="-1,1,10,1">
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1">
+                            <Label
+                                Text="{Binding CurrentHornModeName}"
+                                Style="{StaticResource HeaderLabel}" />
+                            <!--Description-->
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                Text="{Binding CurrentHornModeDescription}"
+                                Style="{StaticResource DescriptionLabel}" />
+                            <!--ValuePicker-->
+                            <Picker
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="2"
+                                HorizontalOptions="CenterAndExpand"
+                                SelectedIndex="{Binding CurrentHornMode,Mode=TwoWay}">
+                                <Picker.Items>
+                                    <x:String>Normal</x:String>
+                                    <x:String>OneTwo</x:String>
+                                    <x:String>WeddingMode</x:String>
+                                </Picker.Items>
+                                <Picker.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="SelectedIndexChanged"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Picker.Behaviors>
+                            </Picker>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+            <!--/child Grid-->
+            
+<!--child Grid-->
+            <Grid
+                Grid.Row="7"
+                Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                </Grid.ColumnDefinitions>
+<!--Horn Key Debounce-->
+                    <Frame
+                        Grid.ColumnSpan="3"
+                        WidthRequest="713"
+                        Margin="-1,1,10,1">
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1">
+                            <Label
+                                Text="{Binding HornKeyDebounceName}"
+                                Style="{StaticResource HeaderLabel}" />
+                            <!--Description-->
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                Text="{Binding HornDebounceDescription}"
+                                Style="{StaticResource DescriptionLabel}" />
+                            <!--Preview Label-->
+                            <Entry
+                                Margin="0,0,00,0"
+                                Grid.Row="2"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                HorizontalOptions="StartAndExpand"
+                                Text="{Binding HornDebounceDelay,Mode=TwoWay}"
+                                Style="{StaticResource EntryStyle}" />
+                            <!--ValueSlider-->
+                            <Slider
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                x:Name="HornDebounceSlider"
+                                Minimum="{Binding MinimumAllowedHornDebounceTime}"
+                                Maximum="{Binding MaximumAllowedHornDebounceTime}"
+                                Style="{StaticResource SliderStyle}"
+                                Value="{Binding HornDebounceDelay,Mode=TwoWay}">
+                                <Slider.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="DragCompleted"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Slider.Behaviors>
+                            </Slider>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+            <!--/child Grid-->
+        </Grid>
+        
+    </StackLayout>
+    </ScrollView>
+</ContentPage>

@@ -8,7 +8,7 @@ namespace HPISMARTUI
             InitializeComponent();
             Routing.RegisterRoute(nameof(SplashPage), typeof(SplashPage));
             Routing.RegisterRoute(nameof(MainPage),typeof(MainPage));
-            
+            Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
             }
         }
     }
