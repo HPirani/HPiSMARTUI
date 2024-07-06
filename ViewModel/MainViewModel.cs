@@ -38,6 +38,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Microsoft.Maui.Controls;
 using Kotlin.Jvm.Functions;
 using Hoho.Android.UsbSerial.Driver;
@@ -83,6 +85,7 @@ using Xamarin.KotlinX.Coroutines;
 using Java.Util;
 using Plugin.Maui.ScreenBrightness;
 using Android.Telecom;
+using System.Globalization;
 //using Microsoft.Maui.Controls;
 
 
@@ -91,6 +94,7 @@ namespace HPISMARTUI.ViewModel
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MainViewModel : ObservableObject//, IQueryAttributable
     {
+#region GlobalOptions;
         public IScreenBrightness _screenBrightness;
 
         [ObservableProperty]
@@ -121,15 +125,27 @@ namespace HPISMARTUI.ViewModel
         public bool mIsReadPhoneStateGranted = true;
         public string mPhoneNumber = "+989379223570";
         //
+        //DateTime
+        
+        [ObservableProperty]
+        PersianCalendar persiaCalendar;
+        System.Timers.Timer TimerNow;
+
         //GPS
         private readonly int GpsUpdate_TimerInterval = 3; //TODO: Set Currect SetValue. 
         readonly System.Timers.Timer TimerGps;
+#endregion
 
 #region XamlBindings
         //Xaml Bindings
         [ObservableProperty]
         private float brightness;
-
+        [ObservableProperty]
+        private string persianDateNow;
+        [ObservableProperty]
+        private string timeNow;
+        [ObservableProperty]
+        private string timeMinuteNow;
         [ObservableProperty]
         private double bikeSpeed=0.0d;
         [ObservableProperty]
@@ -211,6 +227,11 @@ namespace HPISMARTUI.ViewModel
             TimerGps = new System.Timers.Timer(TimeSpan.FromSeconds(GpsUpdate_TimerInterval));
             TimerGps.Elapsed += TimerGps_Elapsed;
             TimerGps.Enabled = false;
+            //DateTimeTimer
+            TimerNow = new(TimeSpan.FromSeconds(1));
+            TimerNow.Elapsed += TimerNowElapsed;
+            TimerNow.Enabled = true;
+            TimerNow.AutoReset = true;
 
             //SMS Emergency Recipients.
             OwnerNumbers.Add("+989358152831");
@@ -330,26 +351,6 @@ namespace HPISMARTUI.ViewModel
             //Chart
 
         }
-
-        protected virtual async  void  OnAppearing()
-        {
-            await Shell.Current.DisplayPromptAsync(nameof(OnAppearing), "OnAppearing", "OK");
-            Controls.ToggleFullScreenStatus();
-        }
-
-        public virtual async void OnDisappearing()
-        {
-            await Shell.Current.DisplayPromptAsync(nameof(OnDisappearing), "OnDisappearing", "OK");
-            WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("StopListening"));
-            
-        }
-
-
-
-
-
-
-
 
         // //////////////////////SMS Methods
 #region SMS
@@ -528,7 +529,7 @@ namespace HPISMARTUI.ViewModel
         private async Task GotoSettingsPageAsync()
         {
 
-            await Shell.Current.GoToAsync(nameof(MainPage), true);
+            await Shell.Current.GoToAsync(nameof(SettingsPage), true);
 
         }
 
@@ -591,7 +592,7 @@ namespace HPISMARTUI.ViewModel
             //   await Task.Delay(TimeSpan.FromSeconds(5));
              WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("GetLastLocation"));
 
-
+            
         }
 
         //XamlCommands.
@@ -948,17 +949,30 @@ namespace HPISMARTUI.ViewModel
         /// <summary>
         /// Timer For GPS Location Updates. The Location will  Update Permanently For More Security.
         /// </summary>
-        private async void TimerGps_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void TimerGps_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            
-           
-            
-
-             
             WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("GetLastLocation"));
 
         }
-        #endregion
+        private void TimerNowElapsed(object sender,System.Timers.ElapsedEventArgs e)
+        {
+            
+            StringBuilder stringBuilder = new StringBuilder();
+            PersiaCalendar = new();
+            stringBuilder.Append(PersiaCalendar.GetYear(DateTime.Now));
+            stringBuilder.Append('/');
+            stringBuilder.Append(PersiaCalendar.GetMonth(DateTime.Now));
+            stringBuilder.Append('/');
+            stringBuilder.Append(PersiaCalendar.GetDayOfMonth(DateTime.Now));
+            PersianDateNow = stringBuilder.ToString();
+            stringBuilder.Clear();
+            stringBuilder.Append(DateTime.Now.Hour);
+            stringBuilder.Append('\n');
+            stringBuilder.Append(DateTime.Now.Minute);
+            TimeNow = stringBuilder.ToString();
+        }
+
+#endregion
 
 #region EmergencyAndSiren
         /// <summary>
@@ -1043,6 +1057,18 @@ namespace HPISMARTUI.ViewModel
             await Shell.Current.DisplayAlert(title, message, ok);
         }
 
+        protected virtual async void OnAppearing()
+        {
+            await Shell.Current.DisplayPromptAsync(nameof(OnAppearing), "OnAppearing", "OK");
+            Controls.ToggleFullScreenStatus();
+        }
+
+        public virtual async void OnDisappearing()
+        {
+            await Shell.Current.DisplayPromptAsync(nameof(OnDisappearing), "OnDisappearing", "OK");
+            WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("StopListening"));
+
+        }
 
 
 

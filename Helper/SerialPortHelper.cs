@@ -92,7 +92,7 @@ namespace HPISMARTUI.Helper
             UsbDeviceConnection connection = usbManager.OpenDevice(usbDeviceInfo.Device);
             if (connection == null)
             {
-                ///   Log.Info("Open in helper", "Open failed");
+                //   Log.Info("Open in helper", "Open failed");
                 return "Connection falut";
             }
             _port = usbDeviceInfo.Driver.Ports.FirstOrDefault();

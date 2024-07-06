@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:sys="clr-namespace:System;assembly=netstandard"
     xmlns:main=" clr-namespace:HPISMARTUI"
     xmlns:model=" clr-namespace:HPISMARTUI.Model"
     xmlns:viewmodel="clr-namespace:HPISMARTUI.ViewModel"
@@ -406,24 +407,24 @@
             </Image>
 <!--Settings Button-->
             <Image 
-                Margin="0,0,0,0"
-                Grid.Column="12"
-             Grid.Row="1"   
+                Margin="0,30,10,0"
+                Grid.Column="13"
+             Grid.Row="0"   
                 VerticalOptions="Center"
                 HorizontalOptions="Center"
-                HeightRequest="30"
-                WidthRequest="30">
+                HeightRequest="50"
+                WidthRequest="50">
                 <Image.Source>
                     <FontImageSource 
                         Color="AliceBlue"
-                        Glyph="0xE8B8"
+                        Glyph="&#xE8B8;"
                         FontFamily="HPiSigns"
                         Size="90"
                     />
                 </Image.Source>
                 <Image.Behaviors>
                     <toolkit:TouchBehavior
-                        Command="{Binding GotoSettingsPageAsyncCommand}"
+                        Command="{Binding GotoSettingsPageCommand}"
                         DefaultAnimationDuration="250"
                         DefaultAnimationEasing="{x:Static Easing.SpringOut}"
                         PressedOpacity="0.6"
@@ -611,7 +612,7 @@
                 HorizontalTextAlignment="Center"
                 FontFamily="Coulson-Condensed"
                 TextColor="AliceBlue"
-                Text="1403/03/05" />
+                Text="{Binding PersianDateNow,Mode=OneWay}" />
 <!--Time-->
             <Label
                 Margin="-100, -10, -50, -40"
@@ -627,7 +628,7 @@
                 VerticalTextAlignment="Center"
                 MaximumWidthRequest="105"
                 LineBreakMode="WordWrap"
-                Text="23 33" />
+                Text="{Binding TimeNow,Mode=OneWay}" />
 <!--EngineTemp-->
             <Label
                 Margin="-100, -10, -57, -40"
