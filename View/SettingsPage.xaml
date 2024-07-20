@@ -86,6 +86,8 @@
                     Height="Auto" />
                 <RowDefinition
                     Height="Auto" />
+                <RowDefinition
+                    Height="Auto" />
                 </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition
@@ -95,7 +97,7 @@
                 <ColumnDefinition
                     Width="Auto" />
             </Grid.ColumnDefinitions>
-<!--<ChildGrid>-->
+<!--<ChildGrid MinServoAngle>-->
             <Grid Grid.Row="1"
                 Grid.Column="1">
                 
@@ -166,7 +168,7 @@
                 </Grid>
        
         <!--</childGrid>-->
-<!--child Grid-->
+<!--child GridMaxServoAngle-->
             <Grid
                 Grid.Row="2"
                 Grid.Column="1">
@@ -235,7 +237,7 @@
                         </StackLayout>
                     </Frame>
                 </Grid>
-<!--child Grid-->
+<!--childGrid MinIdleRPM-->
             <Grid
                 Grid.Row="3"
                 Grid.Column="1">
@@ -310,7 +312,7 @@
                     </Frame>
                 </Grid>
             <!--/child Grid-->
-<!--child Grid-->
+<!--child Grid Blinkers Interval-->
             <Grid
                 Grid.Row="4"
                 Grid.Column="1">
@@ -380,7 +382,7 @@
                     </Frame>
                 </Grid>
             <!--/child Grid-->
-<!--child Grid-->
+<!--child Grid HeadBlinkInterval-->
             <Grid
                 Grid.Row="5"
                 Grid.Column="1">
@@ -450,7 +452,7 @@
                 </Grid>
             <!--/child Grid-->
             
-<!--child Grid-->
+<!--child Grid CurrentHornMode-->
             <Grid
                 Grid.Row="6"
                 Grid.Column="1">
@@ -514,29 +516,100 @@
                 </Grid>
             <!--/child Grid-->
             
-<!--child Grid-->
-            <Grid
-                Grid.Row="7"
-                Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition
-                        Height="Auto" />
-                    <RowDefinition
-                        Height="Auto" />
-                    <RowDefinition
-                        Height="Auto" />
-                    <RowDefinition
-                        Height="Auto" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition
-                        Width="Auto" />
-                    <ColumnDefinition
-                        Width="Auto" />
-                    <ColumnDefinition
-                        Width="Auto" />
-                </Grid.ColumnDefinitions>
-<!--Horn Key Debounce-->
+<!--child Grid RPMReadingInterval-->
+                <Grid
+                    Grid.Row="7"
+                    Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition
+                            Width="Auto" />
+                        <ColumnDefinition
+                            Width="Auto" />
+                        <ColumnDefinition
+                            Width="Auto" />
+                    </Grid.ColumnDefinitions>
+     <!--RPM Reading Interval-->
+                    <Frame
+                        Grid.ColumnSpan="3"
+                        WidthRequest="713"
+                        Margin="-1,1,10,1">
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1">
+                            <Label
+                                Text="{Binding UI_rpmReadIntervalName}"
+                                Style="{StaticResource HeaderLabel}" />
+                            <!--Description-->
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                Text="{Binding UI_rpmReadIntervalDescription}"
+                                Style="{StaticResource DescriptionLabel}" />
+                            <!--Preview Label-->
+                            <Entry
+                                Margin="0,0,00,0"
+                                Grid.Row="2"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                HorizontalOptions="StartAndExpand"
+                                Text="{Binding RpmReadInterval,Mode=TwoWay}"
+                                Style="{StaticResource EntryStyle}" />
+                            <!--ValueSlider-->
+                            <Slider
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                x:Name="HornDebounceSlider"
+                                Minimum="{Binding Ux_MinimumAllowedRpmReadInterval}"
+                                Maximum="{Binding Ux_MaximumAllowedRpmReadInterval}"
+                                Style="{StaticResource SliderStyle}"
+                                Value="{Binding RpmReadInterval,Mode=TwoWay}">
+                                <Slider.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="DragCompleted"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Slider.Behaviors>
+                            </Slider>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+             <!--/child Grid-->
+            
+     <!--child Grid HornKeyDebounce-->
+                <Grid
+                    Grid.Row="8"
+                    Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition
+                            Width="Auto" />
+                        <ColumnDefinition
+                            Width="Auto" />
+                        <ColumnDefinition
+                            Width="Auto" />
+                    </Grid.ColumnDefinitions>
+      <!--Horn Key Debounce-->
                     <Frame
                         Grid.ColumnSpan="3"
                         WidthRequest="713"
@@ -582,13 +655,14 @@
                             </Slider>
                         </StackLayout>
                     </Frame>
-                </Grid>
+                </Grid>        
             <!--/child Grid-->
+            
 <!--App Setting Items-->
-                <!--child Grid-->
-                <!--GPS Update Interval-->
+            
+<!--child Grid GPSUpdateInterval-->
                 <Grid
-                    Grid.Row="8"
+                    Grid.Row="9"
                     Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition
@@ -655,8 +729,7 @@
                         </StackLayout>
                     </Frame>
                 </Grid>
-                <!--/GPS Update Interval-->
-                <!--/child Grid-->
+            <!--/child Grid-->
             </Grid>
         
     </StackLayout>
