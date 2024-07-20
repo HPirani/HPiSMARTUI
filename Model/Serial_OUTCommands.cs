@@ -36,7 +36,7 @@ namespace HPISMARTUI.Model
     public static class Serial_OutCommands 
     {
 
-
+        public static string OutSerial_AliveReport_cmd => "ALV";
         public static string OutSerial_TurnOffENGINE_cmd => "EOF";
         public static string OutSerial_HeadLightOFF_cmd => "HOF";
         public static string OutSerial_HeadLightON_cmd => "HON";
@@ -68,14 +68,14 @@ namespace HPISMARTUI.Model
         public static string OutSerial_SetMaxServoAngle_cmd => "SHA:";
         public static string OutSerial_SetHornMode_cmd => "HRN:";
         public static string OutSerial_SetHeadBlinkFreq_cmd => "HBD:";//
-        public static string OutSerial_SetHornKeyDebounceDelay_cmd => "SHD:";
-
+        public static string OutSerial_SetHornKeyDebounceDelay_cmd => "HDB:";
+        public static string OutSerial_SetrpmReadInterval_cmd => "RPM:";
     }
 
     public static class Serial_InCommands
     {
-        //NOT IMPLEMENTED
-        public static string InSerial_STARTUP_cmd => "Im Alive^_^";
+        public static string InSerial_PowerDown => "DWN";//NOT IMPLEMENTED
+        public static string InSerial_StandBy => "IDL";//NOT IMPLEMENTED
         public static string InSerial_ENGINEisOFF_cmd => "OFF";
         public static string InSerial_ENGINEisON_cmd => "ON";
         public static string InSerial_HeadLightIsON_cmd => "ONH";

@@ -42,7 +42,7 @@ namespace HPISMARTUI
             DeviceDisplay.Current.KeepScreenOn = true;
             //  DeviceDisplay.Current.
             // Code omitted for clarity
-            boot_broadcastReceiver= new BootReceiver();
+            boot_broadcastReceiver = new BootReceiver();
 
             
         }
@@ -85,6 +85,7 @@ namespace HPISMARTUI
             base.OnNewIntent(intent);
             // Handle the intent that you received
             ProcessIntent(intent);
+            
         }
         private void ProcessIntent(Intent intent)
         {

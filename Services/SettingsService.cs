@@ -36,11 +36,16 @@ using CommunityToolkit.Mvvm.Messaging;
 
 using HPISMARTUI.Model;
 
+using Java.Lang;
+
+using StringBuilder = System.Text.StringBuilder;
+
 namespace HPISMARTUI.Services
 {
 
     public class SettingsService : ISettingsService
     {
+        //ECU Settings.
         private const int DefaultMinServoAngle = 0;
         private const int DefaultMaxServoAngle = 30;
         private const int DefaultMinIdleRPM = 150;
@@ -48,15 +53,44 @@ namespace HPISMARTUI.Services
         private const int DefaultHeadBlinkFrequency = 150;
         private const int DefaultHornMode = 0;
         private const int DefaultHornDebounceDelay = 200;
+        private const int DefaultRpmReadingInterval = 500;
+        //App Settings.
+        private const int DefaultGPSUpdateInterval = 1;
+        private const bool DefaultECU_waked = false;
+        //App
+        public int GPSUpdateInterval
+        {
+            get => Preferences.Get(nameof(GPSUpdateInterval), DefaultGPSUpdateInterval);
+            set
+            {
+                Log.Debug(nameof(GPSUpdateInterval), $"writing {value} .");
+                Preferences.Set(nameof(GPSUpdateInterval), value);
+            }
+        }
+        public bool IS_ECU_ALive
+        {
+            get
+            {
+                // Get ECU Status.
+                Task.Run(()=>WeakReferenceMessenger.Default.Send(new Messages.WriteSettingToECUMessage(Serial_OutCommands.OutSerial_AliveReport_cmd)));
+                //Wait 500Milliseconds For ECU Response.
+                Task.Delay(TimeSpan.FromMilliseconds(500));
+                return Preferences.Get(nameof(IS_ECU_ALive), DefaultECU_waked);   
+            }
+            set
+            {
+             Preferences.Set(nameof(IS_ECU_ALive), value);
+            }
+        }
 
-
+        //ECU
         // All get{}; Should Retrived From ECU!.
         public int MinimumServoAngle
         {
             get => /*DefaultMinServoAngle;*/ Preferences.Get(nameof(MinimumServoAngle), DefaultMinServoAngle);
             set
             {
-                Log.Debug("MinimumServoAngle", "writing");
+                Log.Debug(nameof(MinimumServoAngle), $"writing {value} .");
                 Preferences.Set(nameof(MinimumServoAngle), value);
                 WriteSettingsToECU(Serial_OutCommands.OutSerial_SetMinServoAngle_cmd, value);
             }
@@ -67,7 +101,7 @@ namespace HPISMARTUI.Services
             get =>/*DefaultMaxServoAngle;*/ Preferences.Get(nameof(MaximumServoAngle), DefaultMaxServoAngle);
             set
             {
-                Log.Debug("MaximumServoAngle", "writing");
+                Log.Debug(nameof(MaximumServoAngle), $"writing {value} .");
                 Preferences.Set(nameof(MaximumServoAngle), value);
                 WriteSettingsToECU(Serial_OutCommands.OutSerial_SetMaxServoAngle_cmd, value);
             }
@@ -76,10 +110,21 @@ namespace HPISMARTUI.Services
         {
             get => /*DefaultMinIdleRPM;*/ Preferences.Get(nameof(MinIdleRPM), DefaultMinIdleRPM);
             set
-            { 
+            {
+                Log.Debug(nameof(MinIdleRPM), $"writing {value} .");
                 Preferences.Set(nameof(MinIdleRPM), value);
-                Log.Debug("MinIdleRPM", "writing");
                 WriteSettingsToECU(Serial_OutCommands.OutSerial_SetMinIdleRPM_cmd, value);
+            }
+        }
+
+        public int RPMreadingInterval
+        {
+            get => Preferences.Get(nameof(RPMreadingInterval), DefaultRpmReadingInterval);
+            set
+            {
+                Log.Debug(nameof(RPMreadingInterval), $"Writing {value} .");
+                Preferences.Set(nameof(RPMreadingInterval), value);
+                WriteSettingsToECU(Serial_OutCommands.OutSerial_SetrpmReadInterval_cmd, value);
             }
         }
 
@@ -88,7 +133,7 @@ namespace HPISMARTUI.Services
             get => /*DefaultBlinkersInterval;*/ Preferences.Get(nameof(BlinkersInterval), DefaultBlinkersInterval);
             set 
             {
-                Log.Debug("BlinkersInterval", "writing");
+                Log.Debug(nameof(BlinkersInterval), $"writing {value} .");
                 Preferences.Set(nameof(BlinkersInterval), value);
                   WriteSettingsToECU(Serial_OutCommands.OutSerial_SetBlinkInterval_cmd, value); 
             }
@@ -99,6 +144,7 @@ namespace HPISMARTUI.Services
             get => /*DefaultHeadBlinkFrequency;*/ Preferences.Get(nameof(HeadBlinkInterval), DefaultHeadBlinkFrequency); 
             set  
             {
+                Log.Debug(nameof(HeadBlinkInterval), $"writing {value} .");
                 Preferences.Set(nameof(HeadBlinkInterval), value);
                 WriteSettingsToECU(Serial_OutCommands.OutSerial_SetHeadBlinkFreq_cmd, value);
             }
@@ -108,21 +154,24 @@ namespace HPISMARTUI.Services
         {
             get => /*DefaultHornMode;*/ Preferences.Get(nameof(CurrentHornMode),DefaultHornMode);
             set
-            { 
+            {
+                Log.Debug(nameof(CurrentHornMode), $"writing {value} .");
                 Preferences.Set(nameof(CurrentHornMode), value);
                 WriteSettingsToECU(Serial_OutCommands.OutSerial_SetHornMode_cmd, value); 
             }
         }
         public int HornKeyDebounceDelay
         {
-            get => /*DefaultHornDebounceDelay;*/ Preferences.Get(nameof(HornKeyDebounceDelay),DefaultHornDebounceDelay); 
-            set {
+            get => /*DefaultHornDebounceDelay;*/ Preferences.Get(nameof(HornKeyDebounceDelay),DefaultHornDebounceDelay);
+            set
+            {
+                Log.Debug(nameof(HornKeyDebounceDelay), $"writing {value} .");
                 Preferences.Set(nameof(HornKeyDebounceDelay), value);
-                  WriteSettingsToECU(Serial_OutCommands.OutSerial_SetHornKeyDebounceDelay_cmd, value);
+                WriteSettingsToECU(Serial_OutCommands.OutSerial_SetHornKeyDebounceDelay_cmd, value);
             }
         }
 
-        private  void WriteSettingsToECU(string key, int value)
+        private async  void WriteSettingsToECU(string key, int value)
         {
             
 
@@ -131,8 +180,9 @@ namespace HPISMARTUI.Services
             stringBuilder.Append(key);
             stringBuilder.Append(value);
 
-             Task.Delay(TimeSpan.FromMilliseconds(10));
-            WeakReferenceMessenger.Default.Send(new Messages.WriteSettingToECUMessage(stringBuilder.ToString()));
+            await Task.WhenAll( 
+                  Task.Delay(TimeSpan.FromMilliseconds(10)),
+                  Task.Run(()=> WeakReferenceMessenger.Default.Send(new Messages.WriteSettingToECUMessage(stringBuilder.ToString()) ) ) );
 
         }
 

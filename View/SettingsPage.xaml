@@ -84,7 +84,9 @@
                     Height="Auto" />
                 <RowDefinition
                     Height="Auto" />
-            </Grid.RowDefinitions>
+                <RowDefinition
+                    Height="Auto" />
+                </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition
                     Width="Auto" />
@@ -125,14 +127,14 @@
                             Grid.ColumnSpan="3"
                             Grid.Column="1">
                             <Label
-                                Text="{Binding MinServoAngleName}"
+                                Text="{Binding UI_MinServoAngleName}"
                                 Style="{StaticResource HeaderLabel}" />
                             <!--Description-->
                             <Label
                                 Grid.Row="1"
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
-                                Text="{Binding MinServoDescription}"
+                                Text="{Binding UI_MinServoDescription}"
                                 Style="{StaticResource DescriptionLabel}" />
                             <!--Preview Label-->
                             <Entry
@@ -149,8 +151,8 @@
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
                                 x:Name="MinServoSlider"
-                                Minimum="{Binding MinimumAllowedMinServoAngle}"
-                                Maximum="{Binding MaximumAllowedMinServoAngle}"
+                                Minimum="{Binding Ux_MinimumAllowedMinServoAngle}"
+                                Maximum="{Binding Ux_MaximumAllowedMinServoAngle}"
                                 Style="{StaticResource SliderStyle}"
                                 Value="{Binding MinServoAngle,Mode=TwoWay}">
                                 <Slider.Behaviors>
@@ -196,14 +198,14 @@
                             Grid.ColumnSpan="3"
                             Grid.Column="1">
                             <Label
-                                Text="{Binding MaxServoAngleName}"
+                                Text="{Binding UI_MaxServoAngleName}"
                                 Style="{StaticResource HeaderLabel}" />
                             <!--Description-->
                             <Label
                                 Grid.Row="1"
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
-                                Text="{Binding MaxServoDescription}"
+                                Text="{Binding UI_MaxServoDescription}"
                                 Style="{StaticResource DescriptionLabel}" />
                             <!--Preview Label-->
                             <Entry
@@ -220,8 +222,8 @@
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
                                 x:Name="MaxServoSlider"
-                                Minimum="{Binding MinimumAllowedMaxServoAngle}"
-                                Maximum="{Binding MaximumAllowedMaxServoAngle}"
+                                Minimum="{Binding Ux_MinimumAllowedMaxServoAngle}"
+                                Maximum="{Binding Ux_MaximumAllowedMaxServoAngle}"
                                 Style="{StaticResource SliderStyle}"
                                 Value="{Binding MaxServoAngle,Mode=TwoWay}">
                                 <Slider.Behaviors>
@@ -264,7 +266,7 @@
                             Grid.Row="0"
                             Grid.ColumnSpan="2"
                             Grid.Column="1"
-                            Text="{Binding MinIdlerpmName}"
+                                Text="{Binding UI_MinIdlerpmName}"
                             Style="{StaticResource HeaderLabel}" />
                     
                     <!--Description-->
@@ -272,7 +274,7 @@
                             Grid.Row="1"
                             Grid.ColumnSpan="2"
                             Grid.Column="1"
-                            Text="{Binding MinIdlerpmDescription}"
+                                Text="{Binding UI_MinIdlerpmDescription}"
                             Style="{StaticResource DescriptionLabel}" />
                     
                     <!--Preview Label-->
@@ -294,8 +296,8 @@
                             Grid.ColumnSpan="2"
                             Grid.Column="1"
                             x:Name="RPMSlider"
-                            Minimum="{Binding MinimumAllowedMinIdleRPM}"
-                            Maximum="{Binding MaximumAllowedMinIdleRPM}"
+                                Minimum="{Binding Ux_MinimumAllowedMinIdleRPM}"
+                                Maximum="{Binding Ux_MaximumAllowedMinIdleRPM}"
                             Style="{StaticResource SliderStyle}"
                             Value="{Binding MinIdleRPM,Mode=TwoWay}">
                             <Slider.Behaviors>
@@ -340,14 +342,14 @@
                             Grid.ColumnSpan="2"
                             Grid.Column="1">
                             <Label
-                                Text="{Binding BlinkersIntervalName}"
+                                Text="{Binding UI_BlinkersIntervalName}"
                                 Style="{StaticResource HeaderLabel}" />
                             <!--Description-->
                             <Label
                                 Grid.Row="1"
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
-                                Text="{Binding BlinkersIntervalDescription}"
+                                Text="{Binding UI_BlinkersIntervalDescription}"
                                 Style="{StaticResource DescriptionLabel}" />
                             <!--Preview Label-->
                             <Entry
@@ -364,8 +366,8 @@
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
                                 x:Name="BlinkerSlider"
-                                Minimum="{Binding MinimumAllowedBlinkersInterval}"
-                                Maximum="{Binding MaximumAllowedBlinkersInterval}"
+                                Minimum="{Binding Ux_MinimumAllowedBlinkersInterval}"
+                                Maximum="{Binding Ux_MaximumAllowedBlinkersInterval}"
                                 Style="{StaticResource SliderStyle}"
                                 Value="{Binding BlinkersInterval,Mode=TwoWay}">
                                 <Slider.Behaviors>
@@ -410,14 +412,14 @@
                             Grid.ColumnSpan="2"
                             Grid.Column="1">
                             <Label
-                                Text="{Binding HeadBlinkIntervalName}"
+                                Text="{Binding UI_HeadBlinkIntervalName}"
                                 Style="{StaticResource HeaderLabel}" />
                             <!--Description-->
                             <Label
                                 Grid.Row="1"
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
-                                Text="{Binding HeadBlinkIntervalDescription}"
+                                Text="{Binding UI_HeadBlinkIntervalDescription}"
                                 Style="{StaticResource DescriptionLabel}" />
                             <!--Preview Label-->
                             <Entry
@@ -433,8 +435,8 @@
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
                                 x:Name="HeadBlinkSlider"
-                                Minimum="{Binding MinimumAllowedHeadBlinkInterval}"
-                                Maximum="{Binding MaximumAllowedHeadBlinkInterval}"
+                                Minimum="{Binding Ux_MinimumAllowedHeadBlinkInterval}"
+                                Maximum="{Binding Ux_MaximumAllowedHeadBlinkInterval}"
                                 Style="{StaticResource SliderStyle}"
                                 Value="{Binding HeadBlinkInterval,Mode=TwoWay}">
                                 <Slider.Behaviors>
@@ -480,14 +482,14 @@
                             Grid.ColumnSpan="2"
                             Grid.Column="1">
                             <Label
-                                Text="{Binding CurrentHornModeName}"
+                                Text="{Binding UI_CurrentHornModeName}"
                                 Style="{StaticResource HeaderLabel}" />
                             <!--Description-->
                             <Label
                                 Grid.Row="1"
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
-                                Text="{Binding CurrentHornModeDescription}"
+                                Text="{Binding UI_CurrentHornModeDescription}"
                                 Style="{StaticResource DescriptionLabel}" />
                             <!--ValuePicker-->
                             <Picker
@@ -544,14 +546,14 @@
                             Grid.ColumnSpan="2"
                             Grid.Column="1">
                             <Label
-                                Text="{Binding HornKeyDebounceName}"
+                                Text="{Binding UI_HornKeyDebounceName}"
                                 Style="{StaticResource HeaderLabel}" />
                             <!--Description-->
                             <Label
                                 Grid.Row="1"
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
-                                Text="{Binding HornDebounceDescription}"
+                                Text="{Binding UI_HornDebounceDescription}"
                                 Style="{StaticResource DescriptionLabel}" />
                             <!--Preview Label-->
                             <Entry
@@ -568,8 +570,8 @@
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
                                 x:Name="HornDebounceSlider"
-                                Minimum="{Binding MinimumAllowedHornDebounceTime}"
-                                Maximum="{Binding MaximumAllowedHornDebounceTime}"
+                                Minimum="{Binding Ux_MinimumAllowedHornDebounceTime}"
+                                Maximum="{Binding Ux_MaximumAllowedHornDebounceTime}"
                                 Style="{StaticResource SliderStyle}"
                                 Value="{Binding HornDebounceDelay,Mode=TwoWay}">
                                 <Slider.Behaviors>
@@ -582,7 +584,80 @@
                     </Frame>
                 </Grid>
             <!--/child Grid-->
-        </Grid>
+<!--App Setting Items-->
+                <!--child Grid-->
+                <!--GPS Update Interval-->
+                <Grid
+                    Grid.Row="8"
+                    Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition
+                            Width="Auto" />
+                        <ColumnDefinition
+                            Width="Auto" />
+                        <ColumnDefinition
+                            Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <!--GPS Update Interval-->
+                    <Frame
+                        Grid.ColumnSpan="3"
+                        WidthRequest="713"
+                        Margin="-1,1,10,1">
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1">
+                            <Label
+                                Text="{Binding UI_GPSUpdateIntervalName}"
+                                Style="{StaticResource HeaderLabel}" />
+                            <!--Description-->
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                Text="{Binding UI_GPSUpdateIntervalDescription}"
+                                Style="{StaticResource DescriptionLabel}" />
+                            <!--Preview Label-->
+                            <Entry
+                                Margin="0,0,00,0"
+                                Grid.Row="2"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                HorizontalOptions="StartAndExpand"
+                                Text="{Binding GPSUpdateInterval,Mode=TwoWay}"
+                                Style="{StaticResource EntryStyle}" />
+                            <!--ValueSlider-->
+                            <Slider
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                x:Name="GPSIntervalSlider"
+                                Minimum="{Binding Ux_MinimumAllowedGPSInterval}"
+                                Maximum="{Binding Ux_MaximumAllowedGPSInterval}"
+                                Style="{StaticResource SliderStyle}"
+                                Value="{Binding GPSUpdateInterval,Mode=TwoWay}">
+                                <Slider.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="DragCompleted"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Slider.Behaviors>
+                            </Slider>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+                <!--/GPS Update Interval-->
+                <!--/child Grid-->
+            </Grid>
         
     </StackLayout>
     </ScrollView>

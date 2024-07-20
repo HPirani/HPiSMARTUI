@@ -26,7 +26,7 @@ namespace HPISMARTUI.Helper
     {
         const int WRITE_WAIT_MILLIS = 1000;
         static Context context => Android.App.Application.Context;
-        static UsbManager usbManager = (UsbManager)context.GetSystemService(Context.UsbService);
+        static UsbManager usbManager => (UsbManager)context.GetSystemService(Context.UsbService);
         static System.Timers.Timer timerData;
         static List<byte> listByteCache = new();
         static int interval = 50;

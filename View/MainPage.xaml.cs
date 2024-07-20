@@ -73,8 +73,9 @@ namespace HPISMARTUI.View
         
         //  ContextWrapper ContextWrapper = AndroidPlatform.CurrentActivity;
 
-        private static int REQUEST_PERMISSION_READ_STATE = 1;
-
+        private static int REQUEST_PERMISSION_READ_STATE => 1;
+        private static int REQUEST_PERMISSION_PHONE_CALL_P => 2;
+        private static int REQUEST_PERMISSION_PHONE_CALL => 3;
 
 
 
@@ -99,10 +100,11 @@ namespace HPISMARTUI.View
                  != Permission.Granted)
             {
                 vm.mIsReadPhoneStateGranted = false;
-                AndroidPlatform.CurrentActivity.RequestPermissions(new String[]{Manifest.Permission.ReadPhoneState,
-                    Manifest.Permission.SendSms,Manifest.Permission.CallPhone,Manifest.Permission.CallPrivileged}, REQUEST_PERMISSION_READ_STATE);
+                AndroidPlatform.CurrentActivity.RequestPermissions([Manifest.Permission.ReadPhoneState,
+                    Manifest.Permission.SendSms], REQUEST_PERMISSION_READ_STATE);
+                AndroidPlatform.CurrentActivity.RequestPermissions(new String[] { Manifest.Permission.CallPrivileged},REQUEST_PERMISSION_PHONE_CALL_P);
+                AndroidPlatform.CurrentActivity.RequestPermissions([Manifest.Permission.CallPhone], REQUEST_PERMISSION_PHONE_CALL);
 
-                
             } else
             {
                // await Shell.Current.DisplayAlert("SMS Permission","Granted","OK");

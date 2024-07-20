@@ -1,18 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Maui.LifecycleEvents;
+﻿
 using CommunityToolkit.Maui;
 
 using HPiCircularGauge;
-using epj.RadialDial.Maui;
-using HPISMARTUI.Helper;
-using HPISMARTUI.ViewModel;
-using HPISMARTUI.View;
 using Plugin.Maui.Audio;
-using HPISMARTUI.Services;
-using HPISMARTUI.Model;
-using Plugin.Maui.ScreenBrightness;
 using MauiPageFullScreen;
-using Microsoft.Maui.Hosting;
+using epj.RadialDial.Maui;
+using HPISMARTUI.View;
+using HPISMARTUI.Helper;
+using HPISMARTUI.Services;
+using HPISMARTUI.ViewModel;
+using HPISMARTUI.Abstractions;
+using Plugin.Maui.ScreenBrightness;
+using Microsoft.Extensions.Logging;
+
 namespace HPISMARTUI
 {
     public static class MauiProgram
@@ -23,13 +23,15 @@ namespace HPISMARTUI
 
             var builder = MauiApp.CreateBuilder();
             builder
+                
+                .UseFullScreen()
+                 .UseRadialDial()
                 .UseMauiApp<App>()
+                .UseCircularGauge() 
                 .UseMauiCommunityToolkit()
-                //.UseMauiCommunityToolkitMarkup()
                 .UseMauiCommunityToolkitMediaElement()
-                .UseCircularGauge()
-               .UseFullScreen()
-                .UseRadialDial()
+                
+                
                 
                 
                 .ConfigureFonts(fonts =>
@@ -55,29 +57,27 @@ namespace HPISMARTUI
                     fonts.AddFont("modern-lcd.ttf", "modernlcd");
                     fonts.AddFont("OpenDisplay.ttf", "OpenDisplay");
                     fonts.AddFont("phantom-stencil.ttf", "phantomstencil");
-                    fonts.AddFont("Seven-Segment.ttf", "SevenSegment");
-                    
+                    fonts.AddFont("Seven-Segment.ttf", "SevenSegment");  
 
                 });
 
-            builder.Services.AddSingleton<MainPage>();
-
-            builder.Services.AddTransient<SettingsPage>();
-            builder.Services.AddTransient<SettingsViewModel>();
-            builder.Services.AddSingleton<ISettingsService, SettingsService>();
             builder.Services.AddTransient<SplashPage>();
+            builder.Services.AddTransient<SettingsPage>();//Singleton?
             builder.Services.AddTransient<SplashViewModel>();
-
-            builder.Services.AddSingleton<MainViewModel>();
-            builder.Services.AddSingleton<SerialPortHelper>();
-            builder.Services.AddSingleton(AudioManager.Current);
-            builder.Services.AddSingleton(ScreenBrightness.Default);
-            builder.Services.AddSingleton<SmsManagerTestService>();
-            builder.Services.AddSingleton<PersistentService>();
-            builder.Services.AddSingleton<SendStatusReceiver>();
-            builder.Services.AddSingleton<AndroidLocationManager>();
+            builder.Services.AddTransient<SettingsViewModel>();
             
 
+            builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddSingleton<MainViewModel>();
+            builder.Services.AddSingleton<SerialPortHelper>();
+            builder.Services.AddSingleton<PersistentService>();
+            builder.Services.AddSingleton(AudioManager.Current);
+            builder.Services.AddSingleton<SendStatusReceiver>();
+            builder.Services.AddSingleton<SmsManagerTestService>();
+            builder.Services.AddSingleton(ScreenBrightness.Default);
+            builder.Services.AddSingleton<AndroidLocationManager>();
+            builder.Services.AddSingleton<ISettingsService, SettingsService>();
+            builder.Services.AddSingleton<IPhoneCallTask, PhoneCallTask>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

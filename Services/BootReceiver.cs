@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using Android.App;
 using Android.Content;
+using Android.Util;
 using Android.Widget;
 
 namespace HPISMARTUI.Services
@@ -16,10 +17,11 @@ namespace HPISMARTUI.Services
     {
         public override void OnReceive(Context context, Intent intent)
         {
-            Toast.MakeText(context, " Service Running ", ToastLength.Long)?.Show();
+            Shell.Current.DisplayAlert("BootReceiver","Received","OK");
             var launch_intent = Platform.CurrentActivity?.PackageManager?.GetLaunchIntentForPackage(Platform.CurrentActivity.PackageName);
             if (launch_intent != null)
             {
+                Log.Debug("BootReceiver", "Starting App");
                 launch_intent.AddFlags(ActivityFlags.ReorderToFront);
                 launch_intent.AddFlags(ActivityFlags.NewTask);
                 launch_intent.AddFlags(ActivityFlags.ResetTaskIfNeeded);

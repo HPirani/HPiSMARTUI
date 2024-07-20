@@ -45,49 +45,51 @@ namespace HPISMARTUI.ViewModel
   //  [XamlCompilation(XamlCompilationOptions.Compile)]
 
     public partial class SettingsViewModel : ObservableObject
-    {
-
-
-
-        
+    {  
         public ISettingsService _SettingsService { get; set; }
         
-
-
-      
         //Xaml Bindings.
-        #region XamlStatics
+#region XamlBindings
         //DisplayName And Descriptions.
-        public  string MinServoAngleName => "Minimum Servo Angle";
-        public  string MinServoDescription => "Set Minimum Angle Of IDle Adjuster's Servo Angle.";
-        public  string MaxServoAngleName => "Maximum Servo Angle";
-        public string MaxServoDescription => "Set Maximum Angle Of IDle Adjuster's Servo Angle.";
-        public string MinIdlerpmName => "Minimum ENGINE Idle RPM";
-        public string MinIdlerpmDescription => "Minimum RPM in Normal State.Servo Angle Referenced From This SetValue.";
-        public string BlinkersIntervalName => "Blinkers Delay";
-        public string BlinkersIntervalDescription => "Set Blinkers Toggle Frequency in MilliSeconds.";
-        public string HeadBlinkIntervalName => "HeadLight Blink Delay";
-        public string HeadBlinkIntervalDescription => "Set HeadLight Blinker's Toggle Frequency in MilliSeconds.";
-        public string CurrentHornModeName => "Default Active Horn";
-        public string CurrentHornModeDescription => "Select Default Mode For Normal Horn Mode.";
-        public string HornKeyDebounceName => "Horn Toggle Debounce Time";
-        public string HornDebounceDescription => "Set Software Debounce Time For Handling Horn Key. Don't Change it until Horn mode Toggles Wrongly.";
+        public string UI_MinServoAngleName => "Minimum Servo Angle";
+        public  string UI_MinServoDescription => "Set Minimum Angle Of IDle Adjuster's Servo Angle.";
+        public  string UI_MaxServoAngleName => "Maximum Servo Angle";
+        public string UI_MaxServoDescription => "Set Maximum Angle Of IDle Adjuster's Servo Angle.";
+        public string UI_MinIdlerpmName => "Minimum ENGINE Idle RPM";
+        public string UI_MinIdlerpmDescription => "Minimum RPM in Normal State.Servo Angle Referenced From This SetValue.";
+        public string UI_BlinkersIntervalName => "Blinkers Delay";
+        public string UI_BlinkersIntervalDescription => "Set Blinkers Toggle Frequency in MilliSeconds.";
+        public string UI_HeadBlinkIntervalName => "HeadLight Blink Delay";
+        public string UI_HeadBlinkIntervalDescription => "Set HeadLight Blinker's Toggle Frequency in MilliSeconds.";
+        public string UI_CurrentHornModeName => "Default Active Horn";
+        public string UI_CurrentHornModeDescription => "Select Default Mode For Normal Horn Mode.";
+        public string UI_HornKeyDebounceName => "Horn Toggle Debounce Time";
+        public string UI_HornDebounceDescription => "Set Software Debounce Time For Handling Horn Key. Don't Change it until Horn mode Toggles Wrongly.";
+        public string UI_rpmReadIntervalName => "Engine RPM Reading Interval";
+        public string UI_rpmReadIntervalDescription => "Set Interval Of Engine's RPM Reading(Referesh Rate) in MilliSeconds.";
+        //App
+        public string UI_GPSUpdateIntervalName => "GPS Update Interval";
+        public string UI_GPSUpdateIntervalDescription => "Set the Bike's Speed and Acceleration Update Interval in MilliSeconds.";
         //Minimum & Maximum Values.
-        public  int MinimumAllowedMinServoAngle => 0;
-        public int MaximumAllowedMinServoAngle => 359;
-        public int MinimumAllowedMaxServoAngle => 1;
-        public int MaximumAllowedMaxServoAngle => 360;
-        public int MinimumAllowedMinIdleRPM => 1000;
-        public int MaximumAllowedMinIdleRPM => 2500;
-        public int MinimumAllowedBlinkersInterval => 30;
-        public int MaximumAllowedBlinkersInterval => 2000;
-        public int MinimumAllowedHeadBlinkInterval => 30;
-        public int MaximumAllowedHeadBlinkInterval => 2000;
-        public int MinimumAllowedHornDebounceTime => 10;
-        public int MaximumAllowedHornDebounceTime => 5000;
-        //
+        //ECU
+        public int Ux_MinimumAllowedMinServoAngle => 0;
+        public int Ux_MaximumAllowedMinServoAngle => 359;
+        public int Ux_MinimumAllowedMaxServoAngle => 1;
+        public int Ux_MaximumAllowedMaxServoAngle => 360;
+        public int Ux_MinimumAllowedMinIdleRPM => 1000;
+        public int Ux_MaximumAllowedMinIdleRPM => 2500;
+        public int Ux_MinimumAllowedBlinkersInterval => 30;
+        public int Ux_MaximumAllowedBlinkersInterval => 2000;
+        public int Ux_MinimumAllowedHeadBlinkInterval => 30;
+        public int Ux_MaximumAllowedHeadBlinkInterval => 2000;
+        public int Ux_MinimumAllowedHornDebounceTime => 10;
+        public int Ux_MaximumAllowedHornDebounceTime => 5000;
+        public int Ux_MinimumAllowedRpmReadInterval => 10;
+        public int Ux_MaximumAllowedRpmReadInterval => 2000;
+        //App
+        public int Ux_MinimumAllowedGPSInterval => 100;
+        public int Ux_MaximumAllowedGPSInterval => 60000;
 
-#endregion
         //Values.
         [ObservableProperty]
         
@@ -110,16 +112,21 @@ namespace HPISMARTUI.ViewModel
         [ObservableProperty]
        // [NotifyPropertyChangedFor(nameof(_SettingsService))]
         private int hornDebounceDelay;//Software Debounce For Horn Key.
+        [ObservableProperty]
+        private int rpmReadInterval;
+        ///////////
+        //App
+        [ObservableProperty]
+        private int gPSUpdateInterval;
 
-
-
-
+#endregion
       //  [ObservableProperty]
      //   private ObservableCollection<SettingItems> selectedItems;
         public SettingsViewModel(ISettingsService settingsService)
         {
            
             _SettingsService = settingsService;
+            //ECU
             MinServoAngle = _SettingsService.MinimumServoAngle;
             MaxServoAngle = _SettingsService.MaximumServoAngle;
             BlinkersInterval = _SettingsService.BlinkersInterval;
@@ -133,6 +140,8 @@ namespace HPISMARTUI.ViewModel
                  2 => "Wedding",
                  _ => "Select One"
               };
+            //App
+            GPSUpdateInterval = _SettingsService.GPSUpdateInterval;
         }
 
         [RelayCommand]
@@ -140,12 +149,13 @@ namespace HPISMARTUI.ViewModel
         {
            
                 
-
+            //ECU
                     _SettingsService.MinimumServoAngle = MinServoAngle;
                     _SettingsService.MaximumServoAngle = MaxServoAngle;
                     _SettingsService.BlinkersInterval = BlinkersInterval;
                     _SettingsService.HeadBlinkInterval = HeadBlinkInterval;
                     _SettingsService.HornKeyDebounceDelay = HornDebounceDelay;
+                    _SettingsService.RPMreadingInterval = RpmReadInterval;
                     _SettingsService.CurrentHornMode = CurrentHornMode switch
                     {
                         "Normal" => 0,
@@ -153,7 +163,8 @@ namespace HPISMARTUI.ViewModel
                         "Wedding" => 2,
                         _ => 0
                     };
-                
+            //App
+                _SettingsService.GPSUpdateInterval = GPSUpdateInterval;
             
         } 
 

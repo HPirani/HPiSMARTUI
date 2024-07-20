@@ -2,19 +2,19 @@
 **                             HPi Source File                                   **
 **    Copyright (C) 2020-2024 HPiStudio. Allrights Reserved.                     **
 ** ********************************************************************************
-** this code is part of HPiUIpro.                                                **  
+** this code is part of HPiSMARTUi                                               **  
 ** Description:                                                                  **
-** Serial Input | Output pre-defined Commands.                                   **
-** Used For Communicate   Between UI and MicroController.                        **
+** Main Page ViewModel.                                                          **
+** Used For Communicate   Between UI and BackEnd...                              **
 ** Created in sat 1403/01/025 18:40 PM By Hosein Pirani                          **
-**  Modified In sat 1403/03/18 14:00 PM To 22:04 by hosein pirani                **
-**  :Xaml Style... Some Methods...                                               **
-**                                                                               **
+**  Modified In fri 1403/04/22 10:00 AM To 15:15 By Me.                          **
+**  :Emergency Location & Speed & Acceleration added.                            **
+** TODO:Inject AlocationManager!!!                                               **
 ** TODO:Complete Siren Player.                                                   **
 ** TODO: Complete Serial Functions in TryParse()                                 **
 ** Serial functions                                                              **
-** Remove Live Charts and install LiveCharts.MAUI!!!!                              
-** Event Handler For Them,State File writer ,GPS Speedometer,locator And sender  **
+**  install LiveCharts.MAUI!!!!                                                  **  
+**                                                                               **
 ** And  LOT OF CODE @_@                                                          **
 ** ...                                                                           **  
 **                                                                               **
@@ -22,8 +22,8 @@
 **                                                                               **
  *********************************************************************************/
 
-#if NET7_0
-#warning Please Upgrade This Project To .Net8 For GPS Listener And More Features!
+#if !NET8_0_OR_GREATER
+#error Please Upgrade This Project To Net8 For GPSListener And More Features!
 #endif
 
 
@@ -85,7 +85,9 @@ using Xamarin.KotlinX.Coroutines;
 using Java.Util;
 using Plugin.Maui.ScreenBrightness;
 using Android.Telecom;
+
 using System.Globalization;
+using Android;
 //using Microsoft.Maui.Controls;
 
 
@@ -96,11 +98,11 @@ namespace HPISMARTUI.ViewModel
     {
 #region GlobalOptions;
         public IScreenBrightness _screenBrightness;
+        public ISettingsService _settingsService;
 
         [ObservableProperty]
         ENGINEstate estate = new();
-        //readonly AndroidLocationManager aLocationManager = new();
-
+         AndroidLocationManager ALocationManager = new();
         //
         //Main Background
         readonly List<string> BackgroundImages = [];
@@ -109,6 +111,8 @@ namespace HPISMARTUI.ViewModel
         //
         private IAudioPlayer SirenPlayer;
         // //////////////////////////////////////////////
+        // call
+        PhoneCallTask CallTask = new();
         // SMS
         private static int REQUEST_PERMISSION_READ_STATE => 1;
         private static int REQUEST_GET_SMS_SUB_ID => 2;
@@ -119,21 +123,28 @@ namespace HPISMARTUI.ViewModel
             "android.permission.PERFORM_IMS_SINGLE_REGISTRATION";
         private static string DIALOG_TYPE_KEY => "dialog_type";
         public static string RESULT_SUB_ID => "result_sub_id";
-        private static readonly int SMS_PICK = 2;
-        public static  int SmessageId = 0;
-        public int m_sMessageId = SmessageId;
+        private static  int SMS_PICK => 2;
+        public static  int SmessageId { get; set; }
+        public int m_sMessageId { get => SmessageId; set => SmessageId=value; }
         public bool mIsReadPhoneStateGranted = true;
-        public string mPhoneNumber = "+989379223570";
+        public string mPhoneNumber => "+989379223570";
+        public static string DialPhoneNumber => "+989379223570"; 
         //
         //DateTime
-        
         [ObservableProperty]
         PersianCalendar persiaCalendar;
-        System.Timers.Timer TimerNow;
-
+        readonly System.Timers.Timer TimerNow;
         //GPS
-        private readonly int GpsUpdate_TimerInterval = 3; //TODO: Set Currect SetValue. 
+        private Location RawLocation;
+        private bool ALocationManagerStartedListening { get; set;}
+        private int GpsUpdate_TimerInterval  { get; set; } //TODO: Set Currect SetValue. 
+        private int _TimerGPS_OverFlows  { get; set; } // OverFlow Counter For Acceleration. //TODO Fix It!
         readonly System.Timers.Timer TimerGps;
+        private double CurrentSpeedInMps{ get; set; }//For Acceleration  
+        private double PrevSpeedInMps{ get; set; }//For Acceleration
+        private int AccelerationTime { get; set; }//For Acceleration
+        private string EmergencyLocation{get;set;}
+
 #endregion
 
 #region XamlBindings
@@ -164,12 +175,7 @@ namespace HPISMARTUI.ViewModel
         private byte autoStartDelay = 3;//Delay Between Command And AutoStart.
         [ObservableProperty]
         private int headblinkDelay = 150; //Headlight Blink Frequency. 
-        //SMS
 
-        //GPS Location
-        [ObservableProperty]
-        private string deviceLocation;
-        private  Location RawLocation;
        
 #endregion
 
@@ -181,9 +187,9 @@ namespace HPISMARTUI.ViewModel
         readonly System.Timers.Timer TimerEmergency;
         [ObservableProperty]
         private int temergencyInterval = 15;//
-        private bool EmergencyMessageSent;//flag
-        [ObservableProperty]
-        private string forgiveMessage = "Sorry, EveryThing Is OK. No Emergency^_^";
+        private bool EmergencyMessageSent{get;set;}//flag
+        
+        private string ForgiveMessage => "Sorry, EveryThing Is OK. No Emergency^_^";
 #endregion
 
 #region SerialOptions
@@ -213,18 +219,21 @@ namespace HPISMARTUI.ViewModel
 
 
 
-        public MainViewModel(IScreenBrightness screenBrightness)
+        public MainViewModel(IScreenBrightness screenBrightness, ISettingsService settingsService)
         {
             _screenBrightness = screenBrightness;
+            _settingsService = settingsService;
             Brightness = _screenBrightness.Brightness;
             // _screenBrightness.Brightness = 100.0f;
+
+            GpsUpdate_TimerInterval = _settingsService.GPSUpdateInterval;// TODO: Update Value  From Settings Service.
 
             //Emergency Call To Owner.
             TimerEmergency = new System.Timers.Timer(TimeSpan.FromSeconds(TemergencyInterval));
             TimerEmergency.Elapsed += TimerEmergency_Elapsed;
             TimerEmergency.Enabled = false;
-            //GPS Timer For Continous Location Update.
-            TimerGps = new System.Timers.Timer(TimeSpan.FromSeconds(GpsUpdate_TimerInterval));
+            //GPS Timer For Continous Location Update(Acceleration).
+            TimerGps = new System.Timers.Timer(TimeSpan.FromMilliseconds(GpsUpdate_TimerInterval));
             TimerGps.Elapsed += TimerGps_Elapsed;
             TimerGps.Enabled = false;
             //DateTimeTimer
@@ -268,7 +277,7 @@ namespace HPISMARTUI.ViewModel
               //  {serial_In_Commands.InSerial_SirenIsOFF_cmd,()=>Function1()},//Not Implemented.
                // {serial_In_Commands.InSerial_SirenIsOn_cmd,()=>Function1()}, //Not Implemented.
                 //Startup message.
-                {Serial_InCommands.InSerial_STARTUP_cmd,()=>Function2() }//Not Implemented.
+                {Serial_InCommands.InSerial_STARTUP_cmd,()=>ECU_Alive() }//Not Implemented.
 
 
             };
@@ -294,73 +303,45 @@ namespace HPISMARTUI.ViewModel
 
 
             //Messenger
-            //Send StartListening To LocationManager.
-            WeakReferenceMessenger.Default.Send(new ALocationManagerCommunications("StartListening"));
+            //Send StartListening To ALocationManager.
+   
 
-            WeakReferenceMessenger.Default.Register<MainViewModel, Messages.DeviceLocationMessage>
-                (this, (recipient, message) =>
-            {
-                recipient.DeviceLocation = message.Value;
-                Log.Debug("Messenger", "Received Location Message!");
+       
 
-            });
-
-            WeakReferenceMessenger.Default.Register<MainViewModel, RawDeviceLocationMessage>(this, (recipient, message) =>
-            {
-                RawLocation = message.Value;
-                if (RawLocation != null)
-                {
-                    if (RawLocation.Speed.HasValue)
-                    {
-
-                      var  speed_MetersPerMinute = RawLocation.Speed.Value * 60.0d;
-                        // speed_MetersPerHours = speed_MetersPerMinute * 60.0f;
-                        //BikeSpeed = speed_MetersPerHours  / 1000.0f; // divide to 1000 (Meters Per KM)
-                        BikeSpeed = speed_MetersPerMinute * 0.06d; // Equal With: speed_MetersPerMinute * 60 / 1000
-                       // BikeAcceleration = RawLocation.
-                    } else
-                    {
-                        BikeSpeed = 0.0d;
-                    }
-
-                }
-            });
-
-            WeakReferenceMessenger.Default.Register<MainViewModel, ALocationManagerToMainViewModel>(
-                this, (recipient, message) =>
-                {
-                    DisplayMessage(message.Value);
-                });
-
+            
+            //EmerGency Location.
+            
 
                 
 
             //Write SettingItems To ECU
             WeakReferenceMessenger.Default.Register<MainViewModel, Messages.WriteSettingToECUMessage>(
-                this, async (recipient, message) =>
+                this,  (recipient, message) =>
                 {
                     //  await  Shell.Current.DisplayAlert("WritingSettingsToECU", message.Value, "OK");
 
-                    await Task.Delay(TimeSpan.FromMilliseconds(1));
+                     Task.Delay(TimeSpan.FromMilliseconds(1));
 
                     SendSerialData(message.Value);
-                    await Task.Delay(TimeSpan.FromMilliseconds(1));
+                     Task.Delay(TimeSpan.FromMilliseconds(1));
 
                 });
 
-            //Chart
+            
 
         }
 
         // //////////////////////SMS Methods
 #region SMS
 
-        private void SendOutgoingSms(String SMSmessage, String PhoneNumber = "+989012795933")
+
+
+        private void SendOutgoingSms(String SMSmessage, String PhoneNumber)
         {
             String phoneNumber = mPhoneNumber;
             if (String.IsNullOrEmpty(phoneNumber))
             {
-                Log.Debug("SendOutgoingSms", "Couldn't get phone number from view! Ignoring request...");
+                Log.Debug("SendOutgoingSms", "Couldn't get phone number. Ignoring request...");
                 return;
             }
             if (mIsReadPhoneStateGranted)
@@ -378,11 +359,11 @@ namespace HPISMARTUI.ViewModel
             }
         }
 
-        private void SendOutgoingSmsService(String SMSmessage,String PhoneNumber = "+989012795933")
+        private void SendOutgoingSmsService(String SMSmessage,String PhoneNumber)
         {
             Log.Debug("SendOutgoingSmsService", "begin");
             String phoneNumber = mPhoneNumber;
-            if (TextUtils.IsEmpty(phoneNumber))
+            if (string.IsNullOrEmpty(phoneNumber))
             {
                 Log.Debug("SendOutgoingSmsService", "Couldn't get phone number from view! Ignoring request...");
                 return;
@@ -401,7 +382,10 @@ namespace HPISMARTUI.ViewModel
             }
         }
 
-        private void GetSubIdForResult()
+        /// <summary>
+        /// Pick Default Sim.
+        /// </summary>
+        private static void GetSubIdForResult()
         {
             // ask the user for a default SMS SIM.
             Intent intent = new();
@@ -443,11 +427,11 @@ namespace HPISMARTUI.ViewModel
             if (AndroidPlatform.CurrentActivity.CheckSelfPermission(PERFORM_IMS_SINGLE_REGISTRATION)
                     == Permission.Granted)
             {
-                Log.Debug("CheckSingleRegPermission", "Single Reg permission granted");
+                Log.Debug("CheckSingleRegPermission", "granted");
             } else
             {
 
-                Log.Debug("CheckSingleRegPermission", "Single Reg permission NOT granted");
+                Log.Debug("CheckSingleRegPermission", "NOT granted");
             }
 
         }
@@ -502,34 +486,47 @@ namespace HPISMARTUI.ViewModel
 
         /// <summary>
         /// Send Device's Current GeoLocation Info To owner Number(s),
-        /// Or If Message Sent Wrongly(means There Was No Actual Emergency, Just Rider Was'nt Silenced Alarm Before Timer_Emergency() TimeOut),
-        /// Send Exuse Me Message!
+        /// Or If Message Sent Wrongly(means There Was No Actual Emergency and Rider Was'nt Silenced Alarm Before Timer_Emergency() TimeOut),
+        /// Send ExcuseMe Message!
         /// </summary>
         /// <param name="forgive"></param>
-        private async void SendEmergencySMS(bool forgive = false)
+        private void SendEmergencySMS(bool forgive = false)
         
         {
+            try
+            {
 
+                if ((RawLocation == null) && (EmergencyLocation == null))
+                {//Safety
+                    GetLastLocationCommand.Execute(null);
 
+                }
+            }
+            finally
+            {
                 foreach (var num in OwnerNumbers)
                 {
-                    SendOutgoingSms((forgive ? ForgiveMessage : DeviceLocation), num);
-                   await Task.Delay(1000);
+                    //NOT TESTED!
+                    Task.Run(()=>SendOutgoingSms((forgive ? ForgiveMessage : EmergencyLocation), num));
+                    Task.Delay(1000);
 
-            }
-                return;
-            
-            
+                }
+            } 
+                
         }
-        #endregion
+
+#endregion
 
 #region XamlCommands
 
         [RelayCommand]
-        private async Task GotoSettingsPageAsync()
+        private  async Task GotoSettingsPageAsync()
         {
+            
+           // DisplayMessage(CallTask.CanMakePhoneCall.ToString(), "CanMakeCall?");
+          //  CallTask.MakePhoneCall(mPhoneNumber,null,"IR",true);
 
-            await Shell.Current.GoToAsync(nameof(SettingsPage), true);
+
 
         }
 
@@ -584,14 +581,9 @@ namespace HPISMARTUI.ViewModel
 
 
         [RelayCommand]
-        public void GetLastLocation()
+        public async Task GetLastLocationAsync()
         {
-            //WeakReferenceMessenger.Default.Send(new Messages.EngineState_HeadLightMessage(true));
-            // await aLocationManager.GetLastLocation();
-            //  Get_LastLocation();
-            //   await Task.Delay(TimeSpan.FromSeconds(5));
-             WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("GetLastLocation"));
-
+            await ALocationManager.ProcessCommand(AndroidLocationManager.LCommand.GET_LAST_LOCATION);
             
         }
 
@@ -605,7 +597,7 @@ namespace HPISMARTUI.ViewModel
         [RelayCommand]
         public async Task SendCommandToENGINEAsync(String command)
         {
-            if (!String.IsNullOrEmpty(command))
+            if (!string.IsNullOrEmpty(command))
             {
 
                 string action;//???
@@ -655,7 +647,9 @@ namespace HPISMARTUI.ViewModel
                     
                 }
 
-              await  Shell.Current.DisplayAlert("AutoStart Result", action, "OK");
+                
+
+                await  Shell.Current.DisplayAlert("AutoStart Result", action, "OK");
                 SendSerialData(action);
             }
         }
@@ -925,7 +919,7 @@ namespace HPISMARTUI.ViewModel
                       //  {serial_In_Commands.InSerial_SirenIsOFF_cmd,()=>Function1()},//Not Implemented.
                        // {serial_In_Commands.InSerial_SirenIsOn_cmd,()=>Function1()}, //Not Implemented.
                         //Startup message.
-                        {Serial_InCommands.InSerial_STARTUP_cmd,()=>Function2() }//Not Implemented.
+                        {Serial_InCommands.InSerial_STARTUP_cmd,()=>ECU_Alive() }//Not Implemented.
 
 
                     };
@@ -947,11 +941,46 @@ namespace HPISMARTUI.ViewModel
         }
        
         /// <summary>
-        /// Timer For GPS Location Updates. The Location will  Update Permanently For More Security.
+        /// Timer For GPS Location Updates. Currently Used For Acceleration Calculation.
         /// </summary>
         private void TimerGps_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("GetLastLocation"));
+            //WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("GetLastLocation"));
+
+            EmergencyLocation = ALocationManager.CurrentLocation;
+            //Acceleration
+            if (RawLocation.Speed.HasValue)
+            {
+                _TimerGPS_OverFlows++;
+                    //var  speed_MetersPerMinute = RawLocation.Speed.Value * 60.0d;
+                    // speed_MetersPerHours = speed_MetersPerMinute * 60.0f;
+                    //BikeSpeed = speed_MetersPerHours  / 1000.0f; // divide to 1000 (Meters Per KM)
+                    CurrentSpeedInMps = RawLocation.Speed.Value;
+                                                         
+                // if Current Speed Increased Or Decreased
+                if (CurrentSpeedInMps != PrevSpeedInMps)
+                {
+                    BikeSpeed = CurrentSpeedInMps * 3.6d; // Equal With: speed_MetersPerMinute * 60 / 1000 or(speed in meters per second * 60 * 60 / 1000) = Speed in KM/H.
+
+                    //Calculate Acceleration with Following Formula : a = (vf − vi) / Δt => where a = Acceleration in Meters Per Second,
+                    //Vf = Final Speed in Meters Per Second,
+                    //Vi = initial Speed in Meters Per Second,
+                    //Δt = Acceleration time in Seconds.
+                    AccelerationTime =  (_TimerGPS_OverFlows * GpsUpdate_TimerInterval) / 1000;// Convert To Seconds.
+                    //Not Squared!
+                    BikeAcceleration = (CurrentSpeedInMps - PrevSpeedInMps) / AccelerationTime;
+                    BikeAcceleration = CurrentSpeedInMps > PrevSpeedInMps ? BikeAcceleration : -BikeAcceleration;//TODO: Remove Me.
+                    _TimerGPS_OverFlows = 0;
+                }
+            } else
+            {
+                BikeSpeed = 0.0d;
+                BikeAcceleration = 0.0d;
+                _TimerGPS_OverFlows = 0;
+            }
+
+            //Update Acceleration Timer Interval. /!\
+            if(_settingsService.GPSUpdateInterval != GpsUpdate_TimerInterval) GpsUpdate_TimerInterval = _settingsService.GPSUpdateInterval;
 
         }
         private void TimerNowElapsed(object sender,System.Timers.ElapsedEventArgs e)
@@ -1040,13 +1069,14 @@ namespace HPISMARTUI.ViewModel
             }
         }
 
-#endregion
+        #endregion
 
-        void Function2()
+
+
+        void ECU_Alive()
         {
-            Log.Debug("Function2", "HelloFromFunc2");
-            Estate.IsSmallLight_Enabled = false;
-            
+            Log.Debug("ECU_Alive", "HelloFrom ECU");
+            _settingsService.IS_ECU_ALive = true;
         }
 
 
@@ -1066,7 +1096,7 @@ namespace HPISMARTUI.ViewModel
         public virtual async void OnDisappearing()
         {
             await Shell.Current.DisplayPromptAsync(nameof(OnDisappearing), "OnDisappearing", "OK");
-            WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("StopListening"));
+            await ALocationManager.ProcessCommand(AndroidLocationManager.LCommand.STOP_LISTENING);
 
         }
 
@@ -1089,20 +1119,7 @@ namespace HPISMARTUI.Messages// CommunityToolkit.Mvvm.Messaging.Messages
     public class EngineState_HeadLightMessage(bool state) : ValueChangedMessage<bool>(state)
     {
     }
-
-    public class DeviceLocationMessage(String value) : ValueChangedMessage<String>(value)
-    {
-    }
-    public class RawDeviceLocationMessage(Location value) : ValueChangedMessage<Location>(value)
-    {
-    }
-    public class ALocationManagerCommunications(String value) : ValueChangedMessage<String>(value)
-    {
-    }
-    public class ALocationManagerToMainViewModel(String value) : ValueChangedMessage<String>(value)
-    {
-    }
-    public class WriteSettingToECUMessage(String value) : ValueChangedMessage<String>(value)
+    public class WriteSettingToECUMessage(string value) : ValueChangedMessage<string>(value)
     {
     }
 
