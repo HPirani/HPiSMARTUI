@@ -12,6 +12,7 @@ using HPISMARTUI.ViewModel;
 using HPISMARTUI.Abstractions;
 using Plugin.Maui.ScreenBrightness;
 using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui.Storage;
 
 namespace HPISMARTUI
 {
@@ -66,7 +67,6 @@ namespace HPISMARTUI
             builder.Services.AddTransient<SplashViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
             
-
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<MainViewModel>();
             builder.Services.AddSingleton<SerialPortHelper>();
@@ -76,8 +76,9 @@ namespace HPISMARTUI
             builder.Services.AddSingleton<SmsManagerTestService>();
             builder.Services.AddSingleton(ScreenBrightness.Default);
             builder.Services.AddSingleton<AndroidLocationManager>();
-            builder.Services.AddSingleton<ISettingsService, SettingsService>();
             builder.Services.AddSingleton<IPhoneCallTask, PhoneCallTask>();
+            builder.Services.AddSingleton<ISettingsService, SettingsService>();
+            
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

@@ -55,9 +55,21 @@ namespace HPISMARTUI.Services
         private const int DefaultHornDebounceDelay = 200;
         private const int DefaultRpmReadingInterval = 500;
         //App Settings.
-        private const int DefaultGPSUpdateInterval = 1;
+        private const double DefaultTrip = 0.0d;
+        private const int DefaultGPSUpdateInterval = 250;
+        private const int DefaultGPSLocationAccuracy = 0;
+        private const int DefaultGPSLocationRequestInterval = 500;
         private const bool DefaultECU_waked = false;
         //App
+        public double Trip
+        {
+            get => Preferences.Get(nameof(Trip),DefaultTrip);
+            set
+            {
+                Log.Debug(nameof(Trip), $"Writing {value} .");
+                Preferences.Set(nameof(Trip), value);
+            }
+        }
         public int GPSUpdateInterval
         {
             get => Preferences.Get(nameof(GPSUpdateInterval), DefaultGPSUpdateInterval);
@@ -65,6 +77,25 @@ namespace HPISMARTUI.Services
             {
                 Log.Debug(nameof(GPSUpdateInterval), $"writing {value} .");
                 Preferences.Set(nameof(GPSUpdateInterval), value);
+            }
+        }
+        public int GPSLocationAccuracy
+        {
+            get => Preferences.Get(nameof(GPSLocationAccuracy), DefaultGPSLocationAccuracy);
+
+            set
+            {
+                Log.Debug(nameof(GPSLocationAccuracy), $"writing {value} .");
+                Preferences.Set(nameof(GPSLocationAccuracy), value);
+            }
+        }
+        public int GPSLocationRequestInterval
+        {
+            get => Preferences.Get(nameof(GPSLocationRequestInterval), DefaultGPSLocationRequestInterval);
+            set
+            {
+                Log.Debug(nameof(GPSLocationRequestInterval), $"writing {value} .");
+                Preferences.Set(nameof(GPSLocationRequestInterval), value);
             }
         }
         public bool IS_ECU_ALive
@@ -82,7 +113,7 @@ namespace HPISMARTUI.Services
              Preferences.Set(nameof(IS_ECU_ALive), value);
             }
         }
-
+        /*******************************************************************************************************/
         //ECU
         // All get{}; Should Retrived From ECU!.
         public int MinimumServoAngle

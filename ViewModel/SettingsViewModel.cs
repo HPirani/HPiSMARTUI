@@ -4,15 +4,15 @@
 ** ********************************************************************************
 ** this code is part of HPiSMARTUI                                               **  
 ** Description:                                                                  **
-** SettingItems ViewModel For Adjust ECU Parameters.                                 **
+** SettingItems ViewModel                                                        **
 **                                                                               **
 ** Created in sat 1403/03/026 15:40 PM By Hosein Pirani                          **
 **                                                                               **
-** Modified In sun 1403/03/26 16:00 PM To 20:05 by me.                           **
+** Modified In sun 1403/05/17 16:00 PM To 20:05 by me.                           **
 ** :                                                                             **
 ** TODO: Complete Bindings.                                                      **
-** TODO:  Create Event To Command Behavior For Writing SettingItems To ECU!!!        **
-** ..                                                                            **
+** TODO:  Create Event To Command Behavior For Writing SettingItems To ECU!!!    **
+** TODO: Add Validator.                                                          **
 ** ...                                                                           **
 ** And  LOT OF CODE @_@                                                          **
 ** .....                                                                         **  
@@ -39,6 +39,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using HPISMARTUI.Templates;
+using Android.Util;
 
 namespace HPISMARTUI.ViewModel
 {
@@ -70,6 +71,10 @@ namespace HPISMARTUI.ViewModel
         //App
         public string UI_GPSUpdateIntervalName => "GPS Update Interval";
         public string UI_GPSUpdateIntervalDescription => "Set the Bike's Speed and Acceleration Update Interval in MilliSeconds.";
+        public string UI_GPSLocationAccuracyName => "GPS Location Accuracy";
+        public string UI_GPSLocationAccuracyDescription => "Select GPS Data Accuracy.";
+        public string UI_GPSLocationRequestIntervalName => "GPS LocationRequest Interval";
+        public string UI_GPSLocationRequestIntervalDescription => "Set GPSLocation Request Interval in MilliSeconds.Bellow 1 Second May Not Work.";
         //Minimum & Maximum Values.
         //ECU
         public int Ux_MinimumAllowedMinServoAngle => 0;
@@ -89,28 +94,23 @@ namespace HPISMARTUI.ViewModel
         //App
         public int Ux_MinimumAllowedGPSInterval => 100;
         public int Ux_MaximumAllowedGPSInterval => 60000;
+        public int Ux_MinimumAllowedGPSRequestInterval => 100;
+        public int Ux_MaximumAllowedGPSRequestInterval => 5000;
 
         //Values.
         [ObservableProperty]
-        
-        private string currentHornMode;//Picker SetValue. 
+        private int currentHornMode;//Picker SetValue. 
         [ObservableProperty]
-      //  [NotifyPropertyChangedFor(nameof(_SettingsService))]
         private int minServoAngle;//Minimum Servo Angle.
         [ObservableProperty]
-      //  [NotifyPropertyChangedFor(nameof(_SettingsService))]
         private int maxServoAngle;//Maximum Servo Angle.
         [ObservableProperty]
-      //  [NotifyPropertyChangedFor(nameof(_SettingsService))]
         private int minIdleRPM;//Minimum idleRPM.
         [ObservableProperty]
-       // [NotifyPropertyChangedFor(nameof(_SettingsService))]
         private int blinkersInterval;//Blinkers Interval.
         [ObservableProperty]
-       // [NotifyPropertyChangedFor(nameof(_SettingsService))]
         private int headBlinkInterval;//HeadLight Blinker Interval.
         [ObservableProperty]
-       // [NotifyPropertyChangedFor(nameof(_SettingsService))]
         private int hornDebounceDelay;//Software Debounce For Horn Key.
         [ObservableProperty]
         private int rpmReadInterval;
@@ -118,54 +118,64 @@ namespace HPISMARTUI.ViewModel
         //App
         [ObservableProperty]
         private int gPSUpdateInterval;
-
+        [ObservableProperty]
+        private int gpsLocationAccuracy;
+        [ObservableProperty]
+        private int gpsRequestInterval;
 #endregion
-      //  [ObservableProperty]
-     //   private ObservableCollection<SettingItems> selectedItems;
+   
         public SettingsViewModel(ISettingsService settingsService)
         {
            
             _SettingsService = settingsService;
             //ECU
-            MinServoAngle = _SettingsService.MinimumServoAngle;
-            MaxServoAngle = _SettingsService.MaximumServoAngle;
-            BlinkersInterval = _SettingsService.BlinkersInterval;
+            MinServoAngle     = _SettingsService.MinimumServoAngle;
+            MaxServoAngle     = _SettingsService.MaximumServoAngle;
+            BlinkersInterval  = _SettingsService.BlinkersInterval;
             HeadBlinkInterval = _SettingsService.HeadBlinkInterval;
             HornDebounceDelay = _SettingsService.HornKeyDebounceDelay;
+            RpmReadInterval   = _SettingsService.RPMreadingInterval;
             //Load Default or Pre-Defined Horn Mode
-            CurrentHornMode = _SettingsService.CurrentHornMode switch
+            CurrentHornMode = _SettingsService.CurrentHornMode;
+            /*CurrentHornMode   = _SettingsService.CurrentHornMode switch //TODO: FIX Me.!!!!
               {
-                 0 => "Normal" ,
-                 1 => "OneTwo",
-                 2 => "Wedding",
-                 _ => "Select One"
-              };
+                 0 => "0" ,
+                 1 => "1",
+                 2 => "2",
+                 _ => "0"
+              };*/
             //App
-            GPSUpdateInterval = _SettingsService.GPSUpdateInterval;
+            GPSUpdateInterval   = _SettingsService.GPSUpdateInterval;
+            GpsLocationAccuracy = _SettingsService.GPSLocationAccuracy;
+            GpsRequestInterval  = _SettingsService.GPSLocationRequestInterval; 
         }
+
 
         [RelayCommand]
      public void UpdateSettings()
         {
            
-                
+
             //ECU
-                    _SettingsService.MinimumServoAngle = MinServoAngle;
-                    _SettingsService.MaximumServoAngle = MaxServoAngle;
-                    _SettingsService.BlinkersInterval = BlinkersInterval;
-                    _SettingsService.HeadBlinkInterval = HeadBlinkInterval;
+            Log.Debug("UpdateSettings", $"CurrentHornMode: {CurrentHornMode}");
+                    _SettingsService.MinimumServoAngle    = MinServoAngle;
+                    _SettingsService.MaximumServoAngle    = MaxServoAngle;
+                    _SettingsService.BlinkersInterval     = BlinkersInterval;
+                    _SettingsService.HeadBlinkInterval    = HeadBlinkInterval;
                     _SettingsService.HornKeyDebounceDelay = HornDebounceDelay;
-                    _SettingsService.RPMreadingInterval = RpmReadInterval;
-                    _SettingsService.CurrentHornMode = CurrentHornMode switch
+                    _SettingsService.RPMreadingInterval   = RpmReadInterval;
+                    _SettingsService.CurrentHornMode      = CurrentHornMode;
+                    /*_SettingsService.CurrentHornMode    = CurrentHornMode switch//TODO: FIX Me.!!!!
                     {
-                        "Normal" => 0,
-                        "OneTwo" => 1,
-                        "Wedding" => 2,
+                        "0" => 0,
+                        "1" => 1,
+                        "2" => 2,
                         _ => 0
-                    };
+                    };*/
             //App
-                _SettingsService.GPSUpdateInterval = GPSUpdateInterval;
-            
+                _SettingsService.GPSUpdateInterval          = GPSUpdateInterval;
+                _SettingsService.GPSLocationAccuracy        = GpsLocationAccuracy;
+                _SettingsService.GPSLocationRequestInterval = GpsRequestInterval;
         } 
 
 
@@ -176,7 +186,7 @@ namespace HPISMARTUI.ViewModel
 
 
 
-        static async void DisplayMessage(string message, string title = "Note",  string ok = "OK")
+        static async void DisplayMessage(string message, string title = "Settings",  string ok = "OK")
         {
             await Shell.Current.DisplayAlert(title,message,ok);
         }

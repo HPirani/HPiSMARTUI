@@ -8,9 +8,9 @@
 **                                                                               **
 ** Created in tue 1403/01/014 12:00 PM By Hosein Pirani                          **
 **                                                                               **
-** Modified In sun 1403/01/55 16:00 PM To 19:05 by hosein pirani                 **
+** Modified In sun 1403/05/09 16:00 PM To 19:55 by hosein pirani                 **
 **                                                                               **
-** TODO: YOU MUST CONVERT YOUR PROJECT TO MVVM.O_O.                              **
+** TODO:                                                                         **
 ** TODO: Complete Serial Functions                                               **
 ** Serial functions                                                              **
 ** Event Handler For Them,State File writer ,GPS Speedometer,locator And sender  **
@@ -76,7 +76,7 @@ namespace HPISMARTUI.View
         private static int REQUEST_PERMISSION_READ_STATE => 1;
         private static int REQUEST_PERMISSION_PHONE_CALL_P => 2;
         private static int REQUEST_PERMISSION_PHONE_CALL => 3;
-
+        private static int REQUEST_PERMISSION_SEND_SMS => 4;
 
 
 
@@ -95,15 +95,20 @@ namespace HPISMARTUI.View
             
 
             if (AndroidPlatform.CurrentActivity.BaseContext.CheckSelfPermission(Manifest.Permission.ReadPhoneState)
-         != Permission.Granted
-         || AndroidPlatform.CurrentActivity.BaseContext.CheckSelfPermission(Manifest.Permission.SendSms)
+               != Permission.Granted
+               ||  AndroidPlatform.CurrentActivity.BaseContext.CheckSelfPermission(Manifest.Permission.SendSms)
+                 != Permission.Granted 
+               || AndroidPlatform.CurrentActivity.BaseContext.CheckSelfPermission(Manifest.Permission.CallPhone)
+                 != Permission.Granted 
+               || AndroidPlatform.CurrentActivity.BaseContext.CheckSelfPermission(Manifest.Permission.CallPrivileged)
                  != Permission.Granted)
             {
                 vm.mIsReadPhoneStateGranted = false;
                 AndroidPlatform.CurrentActivity.RequestPermissions([Manifest.Permission.ReadPhoneState,
-                    Manifest.Permission.SendSms], REQUEST_PERMISSION_READ_STATE);
-                AndroidPlatform.CurrentActivity.RequestPermissions(new String[] { Manifest.Permission.CallPrivileged},REQUEST_PERMISSION_PHONE_CALL_P);
-                AndroidPlatform.CurrentActivity.RequestPermissions([Manifest.Permission.CallPhone], REQUEST_PERMISSION_PHONE_CALL);
+                    Manifest.Permission.SendSms,Manifest.Permission.CallPhone,Manifest.Permission.CallPrivileged], REQUEST_PERMISSION_READ_STATE);
+                //AndroidPlatform.CurrentActivity.RequestPermissions([Manifest.Permission.SendSms], REQUEST_PERMISSION_SEND_SMS);
+               // AndroidPlatform.CurrentActivity.RequestPermissions([ Manifest.Permission.CallPrivileged],REQUEST_PERMISSION_PHONE_CALL_P);
+               // AndroidPlatform.CurrentActivity.RequestPermissions([Manifest.Permission.CallPhone], REQUEST_PERMISSION_PHONE_CALL);
 
             } else
             {
@@ -120,7 +125,8 @@ namespace HPISMARTUI.View
                 System.Environment.Exit(0);
                 return;
             }
-       //     MainThread.BeginInvokeOnMainThread(async () => { await vm.GetUsbDevices(); });
+            // Call ViewModel
+            vm.OnAppearing();
 
             
 
@@ -131,13 +137,14 @@ namespace HPISMARTUI.View
         {
             base.OnDisappearing();
             AndroidPlatform.CurrentActivity.BaseContext.StopService(new Intent(AndroidPlatform.CurrentActivity.BaseContext, typeof(SmsManagerTestService)));
+            vm.OnDisappearing();
         }
 
         protected override  bool OnBackButtonPressed()
         {
             
             var uaction =  Shell.Current.DisplayAlert("Exit", "Exit?", "Yes", "No");
-            if (uaction.AsAsyncValue().Value is true)
+            if ((uaction.Result == true ) || (uaction.IsCompletedSuccessfully))
             {
                 //System.Environment.Exit(0);
                 App.Current.Quit();

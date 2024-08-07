@@ -74,13 +74,14 @@ namespace HPISMARTUI.Model
 
     public static class Serial_InCommands
     {
+        public static string InSerial_STARTUP_cmd => "SMARTECU";
         public static string InSerial_PowerDown => "DWN";//NOT IMPLEMENTED
         public static string InSerial_StandBy => "IDL";//NOT IMPLEMENTED
         public static string InSerial_ENGINEisOFF_cmd => "OFF";
         public static string InSerial_ENGINEisON_cmd => "ON";
         public static string InSerial_HeadLightIsON_cmd => "ONH";
         public static string InSerial_HeadLightIsOFF_cmd => "OFH";
-        public static string InSerial_HeadBlinkIsON_cmd => "HBO";
+        public static string InSerial_HeadBlinkIsON_cmd => "HBA";
         public static string InSerial_HeadBlinkIsOFF_cmd => "HBF";
         public static string InSerial_LeftTurnIsON_cmd => "LON";
         public static string InSerial_LeftTurnIsOFF_cmd => "LOF";

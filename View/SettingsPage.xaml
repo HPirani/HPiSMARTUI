@@ -88,6 +88,10 @@
                     Height="Auto" />
                 <RowDefinition
                     Height="Auto" />
+                 <RowDefinition
+                    Height="Auto" />
+                 <RowDefinition
+                    Height="Auto" />
                 </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition
@@ -237,6 +241,7 @@
                         </StackLayout>
                     </Frame>
                 </Grid>
+<!--/child GridMaxServoAngle-->
 <!--childGrid MinIdleRPM-->
             <Grid
                 Grid.Row="3"
@@ -311,7 +316,7 @@
                     </StackLayout>
                     </Frame>
                 </Grid>
-            <!--/child Grid-->
+<!--/child Grid MinIdleRPM-->
 <!--child Grid Blinkers Interval-->
             <Grid
                 Grid.Row="4"
@@ -381,7 +386,7 @@
                         </StackLayout>
                     </Frame>
                 </Grid>
-            <!--/child Grid-->
+<!--/child Grid Blinkers Interval-->
 <!--child Grid HeadBlinkInterval-->
             <Grid
                 Grid.Row="5"
@@ -425,9 +430,11 @@
                                 Style="{StaticResource DescriptionLabel}" />
                             <!--Preview Label-->
                             <Entry
-                                Margin="100,0,00,0"
+                                VerticalOptions="Center"
+                                HorizontalOptions="Start"
+                                Margin="0,0,0,0"
                                 Grid.Row="2"
-                                Grid.ColumnSpan="2"
+                                Grid.ColumnSpan="0"
                                 Grid.Column="2"
                                 Text="{Binding HeadBlinkInterval, Mode=TwoWay}"
                                 Style="{StaticResource EntryStyle}" />
@@ -450,7 +457,7 @@
                         </StackLayout>
                     </Frame>
                 </Grid>
-            <!--/child Grid-->
+<!--/child Grid HeadBlinkInterval-->
             
 <!--child Grid CurrentHornMode-->
             <Grid
@@ -514,7 +521,7 @@
                         </StackLayout>
                     </Frame>
                 </Grid>
-            <!--/child Grid-->
+<!--/child Grid CurrentHornMode-->
             
 <!--child Grid RPMReadingInterval-->
                 <Grid
@@ -571,7 +578,6 @@
                                 Grid.Row="3"
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
-                                x:Name="HornDebounceSlider"
                                 Minimum="{Binding Ux_MinimumAllowedRpmReadInterval}"
                                 Maximum="{Binding Ux_MaximumAllowedRpmReadInterval}"
                                 Style="{StaticResource SliderStyle}"
@@ -585,7 +591,7 @@
                         </StackLayout>
                     </Frame>
                 </Grid>
-             <!--/child Grid-->
+<!--/child Grid RPMReadingInterval-->
             
      <!--child Grid HornKeyDebounce-->
                 <Grid
@@ -655,9 +661,10 @@
                             </Slider>
                         </StackLayout>
                     </Frame>
-                </Grid>        
-            <!--/child Grid-->
+                </Grid>
+<!--/child Grid HornKeyDebounce-->
             
+ <!--****************************************************************-->
 <!--App Setting Items-->
             
 <!--child Grid GPSUpdateInterval-->
@@ -703,15 +710,23 @@
                                 Style="{StaticResource DescriptionLabel}" />
                             <!--Preview Label-->
                             <Entry
+                                
                                 Margin="0,0,00,0"
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
                                 HorizontalOptions="StartAndExpand"
                                 Text="{Binding GPSUpdateInterval,Mode=TwoWay}"
-                                Style="{StaticResource EntryStyle}" />
+                                Style="{StaticResource EntryStyle}">
+                                <Entry.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="Completed"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Entry.Behaviors>
+                            </Entry>
                             <!--ValueSlider-->
                             <Slider
+                                
                                 Grid.Row="3"
                                 Grid.ColumnSpan="2"
                                 Grid.Column="1"
@@ -729,7 +744,150 @@
                         </StackLayout>
                     </Frame>
                 </Grid>
-            <!--/child Grid-->
+<!--/child Grid GPSUpdateInterval-->
+            
+<!--child Grid GPSLocationAccuracy-->
+                <Grid
+                    Grid.Row="10"
+                    Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition
+                            Width="Auto" />
+                        <ColumnDefinition
+                            Width="Auto" />
+                        <ColumnDefinition
+                            Width="Auto" />
+                    </Grid.ColumnDefinitions>
+         <!--GPSLocationAccuracy-->
+                    <Frame
+                        Grid.ColumnSpan="3"
+                        WidthRequest="713"
+                        Margin="-1,1,10,1">
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1">
+                            <Label
+                                Text="{Binding UI_GPSLocationAccuracyName}"
+                                Style="{StaticResource HeaderLabel}" />
+          <!--Description-->
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                Text="{Binding UI_GPSLocationAccuracyDescription}"
+                                Style="{StaticResource DescriptionLabel}" />
+          <!--ValuePicker-->
+                            <Picker
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="2"
+                                HorizontalOptions="Center"
+                                SelectedIndex="{Binding GpsLocationAccuracy,Mode=TwoWay}">
+                                <Picker.Items>
+                                    <x:String>Default</x:String>
+                                    <x:String>Lowest</x:String>
+                                    <x:String>Low</x:String>
+                                    <x:String>Medium</x:String>
+                                    <x:String>High</x:String>
+                                    <x:String>Best</x:String>
+                                </Picker.Items>
+                                <Picker.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="SelectedIndexChanged"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Picker.Behaviors>
+                            </Picker>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+<!--/child Grid GPSLocationAccuracy-->
+<!--child Grid GpsRequestInterval-->
+                <Grid
+                    Grid.Row="11"
+                    Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition
+                            Width="Auto" />
+                        <ColumnDefinition
+                            Width="Auto" />
+                        <ColumnDefinition
+                            Width="Auto" />
+                    </Grid.ColumnDefinitions>
+          <!--GpsRequestInterval-->
+                    <Frame
+                        Grid.ColumnSpan="3"
+                        WidthRequest="713"
+                        Margin="-1,1,10,1">
+                        <StackLayout
+                            Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="1">
+                            <Label
+                                Text="{Binding UI_GPSLocationRequestIntervalName}"
+                                Style="{StaticResource HeaderLabel}" />
+                            <!--Description-->
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                Text="{Binding UI_GPSLocationRequestIntervalDescription}"
+                                Style="{StaticResource DescriptionLabel}" />
+                            <!--Preview Label-->
+                            <Entry
+                                Margin="0,0,00,0"
+                                Grid.Row="2"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                HorizontalOptions="StartAndExpand"
+                                Text="{Binding GpsRequestInterval,Mode=TwoWay}"
+                                Style="{StaticResource EntryStyle}">
+                                <Entry.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="Completed"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Entry.Behaviors>
+                            </Entry>
+                            <!--ValueSlider-->
+                            <Slider
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Grid.Column="1"
+                                x:Name="GPSRequestIntervalSlider"
+                                Minimum="{Binding Ux_MinimumAllowedGPSRequestInterval}"
+                                Maximum="{Binding Ux_MaximumAllowedGPSRequestInterval}"
+                                Style="{StaticResource SliderStyle}"
+                                Value="{Binding GpsRequestInterval,Mode=TwoWay}">
+                                <Slider.Behaviors>
+                                    <toolkit:EventToCommandBehavior
+                                        EventName="DragCompleted"
+                                        Command="{Binding UpdateSettingsCommand}" />
+                                </Slider.Behaviors>
+                            </Slider>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+<!--/child Grid GpsRequestInterval-->
             </Grid>
         
     </StackLayout>

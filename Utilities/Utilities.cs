@@ -30,8 +30,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Android.OS;
+using Android.Util;
+
+using HPISMARTUI.ViewModel;
+
 namespace HPISMARTUI
 {
+
+
+
   public static  class Utilities
     {
         /// <summary>
@@ -65,4 +73,5 @@ namespace HPISMARTUI
             return stringBuilder.ToString();
         }
     }
+
 }

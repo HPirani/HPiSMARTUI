@@ -7,23 +7,24 @@
 ** Main Page ViewModel.                                                          **
 ** Used For Communicate   Between UI and BackEnd...                              **
 ** Created in sat 1403/01/025 18:40 PM By Hosein Pirani                          **
-**  Modified In fri 1403/04/22 10:00 AM To 15:15 By Me.                          **
-**  :Emergency Location & Speed & Acceleration added.                            **
-** TODO:Inject AlocationManager!!!                                               **
-** TODO:Complete Siren Player.                                                   **
-** TODO: Complete Serial Functions in TryParse()                                 **
-** Serial functions                                                              **
-**  install LiveCharts.MAUI!!!!                                                  **  
+**  Modified In sat 1403/05/09 16:00 PM To 20:00 By Me.                          **
+**  : Minor Fixes...                                                             **
 **                                                                               **
-** And  LOT OF CODE @_@                                                          **
-** ...                                                                           **  
+** TODO:Test Trip Meter For Bike Speed.                                          **
+**     :Complete Siren Player.                                                   **
+**     : Complete Serial Functions in TryParse() And Test Them.                  **
+**     : Serial functions                                                        **
+**     : install LiveCharts.MAUI!!!!Or Create Own Slider And ProgressBar.        **  
+** TODO: Add Text To Speech Ability For Talking With Rider,USE AI!               **
+** IMPORTANT: MAKE EMERGENCY Timer Public!!!!                                    **
+** Inject VM IN Other Classes                                                    **  
 **                                                                               **
-**                                                                               **
-**                                                                               **
+**  And  LOT OF CODE @_@                                                         **
+**  ...                                                                          **
  *********************************************************************************/
 
-#if !NET8_0_OR_GREATER
-#error Please Upgrade This Project To Net8 For GPSListener And More Features!
+#if !NET8_0_OR_GREATER 
+#error Please Upgrade This Project To Net8 and upper For GPSListener And More Features!.
 #endif
 
 
@@ -88,21 +89,25 @@ using Android.Telecom;
 
 using System.Globalization;
 using Android;
+using CommunityToolkit.Maui.Storage;
+using System.Threading;
+using CommunityToolkit.Maui.Core.Extensions;
+using Java.IO;
 //using Microsoft.Maui.Controls;
 
 
 namespace HPISMARTUI.ViewModel
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class MainViewModel : ObservableObject//, IQueryAttributable
+    public partial class MainViewModel : ObservableObject
     {
-#region GlobalOptions;
+#region GlobalOptions
         public IScreenBrightness _screenBrightness;
         public ISettingsService _settingsService;
 
         [ObservableProperty]
         ENGINEstate estate = new();
-         AndroidLocationManager ALocationManager = new();
+         AndroidLocationManager ALocationManager;
         //
         //Main Background
         readonly List<string> BackgroundImages = [];
@@ -133,17 +138,30 @@ namespace HPISMARTUI.ViewModel
         //DateTime
         [ObservableProperty]
         PersianCalendar persiaCalendar;
-        readonly System.Timers.Timer TimerNow;
+        private System.Timers.Timer TimerNow;
         //GPS
-        private Location RawLocation;
+        [ObservableProperty]
+        private Location rawLocation;
         private bool ALocationManagerStartedListening { get; set;}
-        private int GpsUpdate_TimerInterval  { get; set; } //TODO: Set Currect SetValue. 
-        private int _TimerGPS_OverFlows  { get; set; } // OverFlow Counter For Acceleration. //TODO Fix It!
-        readonly System.Timers.Timer TimerGps;
-        private double CurrentSpeedInMps{ get; set; }//For Acceleration  
-        private double PrevSpeedInMps{ get; set; }//For Acceleration
-        private int AccelerationTime { get; set; }//For Acceleration
-        private string EmergencyLocation{get;set;}
+        private int GpsUpdate_TimerInterval  { get; set; } //TODO: Set Currect Value. 
+        [ObservableProperty]
+        private int _TimerGPS_OverFlows; // OverFlow Counter For Acceleration. //TODO Fix It!
+        private System.Timers.Timer TimerGps;
+        [ObservableProperty]
+        private double currentSpeedInMps;//For Acceleration  
+        [ObservableProperty]
+        private double prevSpeedInMps;//For Acceleration
+        [ObservableProperty]
+        private int accelerationTime;//For Acceleration
+        [ObservableProperty]
+        private double tempTrip;//Store Temporary Trip Value Until 1 meter.
+        [ObservableProperty]
+        private string emergencyLocation;
+        //Test
+        [ObservableProperty]
+        private int flag=0;
+        [ObservableProperty]
+        string logchache;
 
 #endregion
 
@@ -159,6 +177,8 @@ namespace HPISMARTUI.ViewModel
         private string timeMinuteNow;
         [ObservableProperty]
         private double bikeSpeed=0.0d;
+        [ObservableProperty]
+        private double displayTrip = 12345678.90d;
         [ObservableProperty]
         private double bikeAcceleration=0.0d;
         [ObservableProperty]
@@ -184,7 +204,7 @@ namespace HPISMARTUI.ViewModel
 #region EmergencyOptions
         readonly IAudioManager audioManager;
         private readonly List<string> OwnerNumbers = [];
-        readonly System.Timers.Timer TimerEmergency;
+        private System.Timers.Timer TimerEmergency;
         [ObservableProperty]
         private int temergencyInterval = 15;//
         private bool EmergencyMessageSent{get;set;}//flag
@@ -214,34 +234,31 @@ namespace HPISMARTUI.ViewModel
         [ObservableProperty]
         string srialDataForSend = "Hello!";//Just For Test With SendEntryValue Command.
         //Input Serial Parser
-        private readonly Dictionary<string, Action> Serial_actions;
-        #endregion
+        private  Dictionary<string, Action> Serial_actions;
+        
+
+#endregion
 
 
+#region Constructor
 
-        public MainViewModel(IScreenBrightness screenBrightness, ISettingsService settingsService)
+        public MainViewModel(IScreenBrightness screenBrightness, ISettingsService settingsService,AndroidLocationManager androidLocationManager)
         {
+            ALocationManager = androidLocationManager;
             _screenBrightness = screenBrightness;
             _settingsService = settingsService;
             Brightness = _screenBrightness.Brightness;
             // _screenBrightness.Brightness = 100.0f;
 
-            GpsUpdate_TimerInterval = _settingsService.GPSUpdateInterval;// TODO: Update Value  From Settings Service.
-
+            GpsUpdate_TimerInterval = _settingsService.GPSUpdateInterval;// TODO: TEST It
+            Ld($"GPSUpdate Interval: {GpsUpdate_TimerInterval} .");
+            DisplayTrip = _settingsService.Trip; // TODO: TEST It
+            Ld($"Saved Trip: {DisplayTrip} .");
             //Emergency Call To Owner.
             TimerEmergency = new System.Timers.Timer(TimeSpan.FromSeconds(TemergencyInterval));
             TimerEmergency.Elapsed += TimerEmergency_Elapsed;
             TimerEmergency.Enabled = false;
-            //GPS Timer For Continous Location Update(Acceleration).
-            TimerGps = new System.Timers.Timer(TimeSpan.FromMilliseconds(GpsUpdate_TimerInterval));
-            TimerGps.Elapsed += TimerGps_Elapsed;
-            TimerGps.Enabled = false;
-            //DateTimeTimer
-            TimerNow = new(TimeSpan.FromSeconds(1));
-            TimerNow.Elapsed += TimerNowElapsed;
-            TimerNow.Enabled = true;
-            TimerNow.AutoReset = true;
-
+            
             //SMS Emergency Recipients.
             OwnerNumbers.Add("+989358152831");
             OwnerNumbers.Add("+989379223570");
@@ -252,35 +269,8 @@ namespace HPISMARTUI.ViewModel
 
             //ParseSerialCommands();
             // Register Serial Actions
-            Serial_actions = new Dictionary<string, Action>
-            {
-                {Serial_InCommands.InSerial_AlarmSilenced_cmd, async ()=>await DoEmergencyState(false) },
-                {Serial_InCommands.InSerial_ALarmSourceIsMicro_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),false) },//Not Implemented.
-                {Serial_InCommands.InSerial_HeadLightIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),true) },
-                {Serial_InCommands.InSerial_AlarmSourceIsUI_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),true) },//Not Implemented.
-                {Serial_InCommands.InSerial_AllBlinkersIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),false) },
-                {Serial_InCommands.InSerial_AllBlinkersIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),true) },
-                {Serial_InCommands.InSerial_HeadBlinkIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),false)},
-                {Serial_InCommands.InSerial_HeadBlinkIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),true)},
-                {Serial_InCommands.InSerial_BlinkDanceIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),false)},
-                {Serial_InCommands.InSerial_BlinkDanceIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),true)},
-                {Serial_InCommands.InSerial_ENGINEisOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),false)},
-                {Serial_InCommands.InSerial_ENGINEisON_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),true)},
-                {Serial_InCommands.InSerial_HeadLightIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),false)},
-                {Serial_InCommands.InSerial_LeftTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),false)},
-                {Serial_InCommands.InSerial_LeftTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),true)},
-                {Serial_InCommands.InSerial_PoliceLightsIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),false)},
-                {Serial_InCommands.InSerial_PoliceLightsIsOn_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),true)},
-                {Serial_InCommands.InSerial_RightTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),false)},
-                {Serial_InCommands.InSerial_RightTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),true)},
-                {Serial_InCommands.InSerial_ShakeDetected_cmd,async ()=>await DoEmergencyState(true)},//Not Implemented.
-              //  {serial_In_Commands.InSerial_SirenIsOFF_cmd,()=>Function1()},//Not Implemented.
-               // {serial_In_Commands.InSerial_SirenIsOn_cmd,()=>Function1()}, //Not Implemented.
-                //Startup message.
-                {Serial_InCommands.InSerial_STARTUP_cmd,()=>ECU_Alive() }//Not Implemented.
 
-
-            };
+            RegisterSerialActions();
 
             /////////////
             SerialPortHelper.WhenUsbDeviceAttached((usbDevice) =>
@@ -302,18 +292,6 @@ namespace HPISMARTUI.ViewModel
             });
 
 
-            //Messenger
-            //Send StartListening To ALocationManager.
-   
-
-       
-
-            
-            //EmerGency Location.
-            
-
-                
-
             //Write SettingItems To ECU
             WeakReferenceMessenger.Default.Register<MainViewModel, Messages.WriteSettingToECUMessage>(
                 this,  (recipient, message) =>
@@ -327,11 +305,26 @@ namespace HPISMARTUI.ViewModel
 
                 });
 
-            
+            //Start GPS Update
+
 
         }
 
+        #endregion
         // //////////////////////SMS Methods
+
+#region Distructor
+        ~MainViewModel()
+        {
+            TimerNow?.Stop();
+            TimerNow?.Dispose();
+            TimerGps?.Stop();
+            TimerGps?.Dispose();
+            TimerEmergency?.Stop();
+            TimerEmergency?.Dispose();
+        }
+#endregion
+
 #region SMS
 
 
@@ -522,14 +515,29 @@ namespace HPISMARTUI.ViewModel
         [RelayCommand]
         private  async Task GotoSettingsPageAsync()
         {
-            
-           // DisplayMessage(CallTask.CanMakePhoneCall.ToString(), "CanMakeCall?");
-          //  CallTask.MakePhoneCall(mPhoneNumber,null,"IR",true);
 
+            // DisplayMessage(CallTask.CanMakePhoneCall.ToString(), "CanMakeCall?");
+            //  CallTask.MakePhoneCall(mPhoneNumber,null,"IR",true);
+             await Shell.Current.GoToAsync(nameof(SettingsPage), true);
+   
 
 
         }
-
+/*
+        [RelayCommand]
+#pragma warning disable MVVMTK0039 // Async void returning method annotated with RelayCommand
+        public async void Back()
+#pragma warning restore MVVMTK0039 // Async void returning method annotated with RelayCommand
+        {
+            var uaction = await Shell.Current.DisplayAlert("Exit", "Exit?", "Yes", "No");
+            if (uaction is true)
+            {
+                //System.Environment.Exit(0);
+                App.Current.Quit();
+            }
+            await Shell.Current.DisplayAlert("AlertResult", uaction.ToString(), "OK");
+            
+        }*/
 
         [RelayCommand]
         private async Task LoadBackgroundImage()
@@ -599,7 +607,7 @@ namespace HPISMARTUI.ViewModel
         {
             if (!string.IsNullOrEmpty(command))
             {
-
+                
                 string action;//???
 
                 //Process AutoStart and Or HeadLight Blinker.
@@ -632,32 +640,76 @@ namespace HPISMARTUI.ViewModel
                 {
                     // Procces Touch Commands
                     action = command switch 
-                    { //Turn off if HeadLight Is On.
+                    { //Toggle HeadLight.
                         "ToggleHeadLight" => Estate.IsHeadLight_Enabled ? Serial_OutCommands.OutSerial_HeadLightOFF_cmd : Serial_OutCommands.OutSerial_HeadLightON_cmd,
                         "ToggleLeftTurn" => Estate.IsLeftTurn_Enabled ? Serial_OutCommands.OutSerial_LeftBlinkOFF_cmd : Serial_OutCommands.OutSerial_LeftBlinkON_cmd,
                         "ToggleRightTurn" => Estate.IsRightTurn_Enabled ? Serial_OutCommands.OutSerial_RightBlinkOFF_cmd : Serial_OutCommands.OutSerial_RightBlinkON_cmd,
                         "ToggleMultiblinker" => Estate.IsMultiblink_Enabled ? Serial_OutCommands.OutSerial_MultiBlinkOFF_cmd : Serial_OutCommands.OutSerial_MultiBlinkON_cmd,
                         "ToggleBlinkDance" => Estate.IsBlinkDance_Enabled ? Serial_OutCommands.OutSerial_BlinkerDanceOFF_cmd : Serial_OutCommands.OutSerial_BlinkerDanceON_cmd,
                         "TogglePoliceLights" => Estate.IsPOliceLight_Enabled ? Serial_OutCommands.OutSerial_PoliceLightOFF_cmd : Serial_OutCommands.OutSerial_PoliceLightON_cmd,
-                        "ForceAutoStart" => Estate.IsENGINE_ON ? "" : "ASE:100",
-
-                        _ => throw new NotImplementedException(),
+                        "ForceAutoStart" => Estate.IsENGINE_ON ? Serial_OutCommands.OutSerial_TurnOffENGINE_cmd : "ASE:100",
+                        "ToggleSirenSource" => Estate.IsMeSirenSource_Enabled ? Serial_OutCommands.OutSerial_SetSirenSourceYOU_cmd : Serial_OutCommands.OutSerial_SetSirenSourceME_cmd,
+                        
+                        _ => throw new NotImplementedException()
 
                     };
                     
                 }
 
+
+     
+
+
                 
 
-                await  Shell.Current.DisplayAlert("AutoStart Result", action, "OK");
+                  await DisplayMessage(action,"AutoStart Result");
                 SendSerialData(action);
             }
         }
-        #endregion
 
-    /////
-    //Serial Commands
+#endregion
+
+ //Serial Commands
 #region SerialCommunication
+
+        /// <summary>
+        /// Register Behavior Of Each Incoming Serial Commands or Reports.
+        /// </summary>
+        private void RegisterSerialActions()
+        {
+            Serial_actions = new Dictionary<string, Action>
+            {
+                {Serial_InCommands.InSerial_AlarmSilenced_cmd, async ()=>await DoEmergencyState(false) },
+                {Serial_InCommands.InSerial_ALarmSourceIsMicro_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),false) },//Not Implemented.
+                {Serial_InCommands.InSerial_HeadLightIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),true) },
+                {Serial_InCommands.InSerial_AlarmSourceIsUI_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),true) },//Not Implemented.
+                {Serial_InCommands.InSerial_AllBlinkersIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),false) },
+                {Serial_InCommands.InSerial_AllBlinkersIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),true) },
+                {Serial_InCommands.InSerial_HeadBlinkIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),false)},
+                {Serial_InCommands.InSerial_HeadBlinkIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),true)},
+                {Serial_InCommands.InSerial_BlinkDanceIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),false)},
+                {Serial_InCommands.InSerial_BlinkDanceIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),true)},
+                {Serial_InCommands.InSerial_ENGINEisOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),false)},
+                {Serial_InCommands.InSerial_ENGINEisON_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),true)},
+                {Serial_InCommands.InSerial_HeadLightIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),false)},
+                {Serial_InCommands.InSerial_LeftTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),false)},
+                {Serial_InCommands.InSerial_LeftTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),true)},
+                {Serial_InCommands.InSerial_PoliceLightsIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),false)},
+                {Serial_InCommands.InSerial_PoliceLightsIsOn_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),true)},
+                {Serial_InCommands.InSerial_RightTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),false)},
+                {Serial_InCommands.InSerial_RightTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),true)},
+                {Serial_InCommands.InSerial_ShakeDetected_cmd,async ()=>await DoEmergencyState(true)},//Not Implemented.
+              //  {serial_In_Commands.InSerial_SirenIsOFF_cmd,()=>Function1()},//Not Implemented.
+               // {serial_In_Commands.InSerial_SirenIsOn_cmd,()=>Function1()}, //Not Implemented.
+                //Startup message.
+                {Serial_InCommands.InSerial_STARTUP_cmd,()=>ECU_Alive() }//Not Implemented.
+
+
+            };
+
+        }
+
+
         //[RelayCommand]
         public async Task GetUsbDevices()
         {
@@ -890,42 +942,10 @@ namespace HPISMARTUI.ViewModel
 
         }
         #endregion
-
+ //TIMERS
 #region Timers
-        /*        void ParseSerialCommands()
-                {
-                    Serial_actions = new Dictionary<string, Action>
-                    {
-                        {Serial_InCommands.InSerial_AlarmSilenced_cmd, async ()=>await DoEmergencyState(false) },
-                        {Serial_InCommands.InSerial_ALarmSourceIsMicro_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),false) },//Not Implemented.
-                        {Serial_InCommands.InSerial_HeadLightIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),true) },
-                        {Serial_InCommands.InSerial_AlarmSourceIsUI_cmd,()=>SetEngineStateValue(nameof(Estate.IsMeSirenSource_Enabled),true) },//Not Implemented.
-                        {Serial_InCommands.InSerial_AllBlinkersIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),false) },
-                        {Serial_InCommands.InSerial_AllBlinkersIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsMultiblink_Enabled),true) },
-                        {Serial_InCommands.InSerial_HeadBlinkIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),false)},
-                        {Serial_InCommands.InSerial_HeadBlinkIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadBlink_Enabled),true)},
-                        {Serial_InCommands.InSerial_BlinkDanceIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),false)},
-                        {Serial_InCommands.InSerial_BlinkDanceIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsBlinkDance_Enabled),true)},
-                        {Serial_InCommands.InSerial_ENGINEisOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),false)},
-                        {Serial_InCommands.InSerial_ENGINEisON_cmd,()=>SetEngineStateValue( nameof(Estate.IsENGINE_ON),true)},
-                        {Serial_InCommands.InSerial_HeadLightIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsHeadLight_Enabled),false)},
-                        {Serial_InCommands.InSerial_LeftTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),false)},
-                        {Serial_InCommands.InSerial_LeftTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsLeftTurn_Enabled),true)},
-                        {Serial_InCommands.InSerial_PoliceLightsIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),false)},
-                        {Serial_InCommands.InSerial_PoliceLightsIsOn_cmd,()=>SetEngineStateValue( nameof(Estate.IsPOliceLight_Enabled),true)},
-                        {Serial_InCommands.InSerial_RightTurnIsOFF_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),false)},
-                        {Serial_InCommands.InSerial_RightTurnIsON_cmd,()=>SetEngineStateValue( nameof(Estate.IsRightTurn_Enabled),true)},
-                        {Serial_InCommands.InSerial_ShakeDetected_cmd,async ()=>await DoEmergencyState(true)},//Not Implemented.
-                      //  {serial_In_Commands.InSerial_SirenIsOFF_cmd,()=>Function1()},//Not Implemented.
-                       // {serial_In_Commands.InSerial_SirenIsOn_cmd,()=>Function1()}, //Not Implemented.
-                        //Startup message.
-                        {Serial_InCommands.InSerial_STARTUP_cmd,()=>ECU_Alive() }//Not Implemented.
 
-
-                    };
-                }*/
-        //TIMERS
-        //
+     
         /// <summary>
         /// Timer For Emergency Call.
         /// Used for Send Last Location Of Device(== Bike) To Owners Number Via SMS.
@@ -945,38 +965,67 @@ namespace HPISMARTUI.ViewModel
         /// </summary>
         private void TimerGps_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            //WeakReferenceMessenger.Default.Send(new Messages.ALocationManagerCommunications("GetLastLocation"));
+             RawLocation = ALocationManager.RawLocation;//Update Location.
 
-            EmergencyLocation = ALocationManager.CurrentLocation;
-            //Acceleration
+            if (ALocationManager.CurrentLocation.Equals("Error"))
+            {
+                Ld("ALocationManager.CurrentLocation Is Empty Trying To Retrive Last Location.", nameof(this.TimerGps_Elapsed), 'w');
+                Task.Run(async () => await ALocationManager.ProcessCommand(AndroidLocationManager.LCommand.GET_LAST_LOCATION));
+            } else
+            {
+                EmergencyLocation = ALocationManager.CurrentLocation;
+            }
+            if (Flag <= 3)
+            {
+                Flag++;
+                Ld(EmergencyLocation, "VM.Timer");
+            }
+            //Calculate Speed.
             if (RawLocation.Speed.HasValue)
             {
-                _TimerGPS_OverFlows++;
                     //var  speed_MetersPerMinute = RawLocation.Speed.Value * 60.0d;
                     // speed_MetersPerHours = speed_MetersPerMinute * 60.0f;
                     //BikeSpeed = speed_MetersPerHours  / 1000.0f; // divide to 1000 (Meters Per KM)
                     CurrentSpeedInMps = RawLocation.Speed.Value;
-                                                         
+                BikeSpeed = CurrentSpeedInMps * 3.6d; // Equal With: speed_MetersPerMinute * 60 / 1000 or(
+                                                      // speed in meters per second * 60 * 60 / 1000) = Speed in KM/H.
+                //Calculate Trip(Travelled Distance).
+                if (BikeSpeed >= 2)//MoreThan 2KM/H For Resolve GPS ERRORs.
+                {
+                    //Calculate The Trip
+                    TempTrip +=  CurrentSpeedInMps / GpsUpdate_TimerInterval ;// TODO TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    if (TempTrip >= 1.0d)
+                    {//Add One Meter To Trip.
+                        DisplayTrip += TempTrip / 0.01d;//Divide By 0.01(Hundredth) TODO: TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        TempTrip = 0.0d;
+                        _settingsService.Trip = DisplayTrip;//Write Settings To Disk.
+                          
+                    }
+                }
+                TimerGPS_OverFlows++;
+
+                //Acceleration
                 // if Current Speed Increased Or Decreased
                 if (CurrentSpeedInMps != PrevSpeedInMps)
                 {
-                    BikeSpeed = CurrentSpeedInMps * 3.6d; // Equal With: speed_MetersPerMinute * 60 / 1000 or(speed in meters per second * 60 * 60 / 1000) = Speed in KM/H.
-
-                    //Calculate Acceleration with Following Formula : a = (vf − vi) / Δt => where a = Acceleration in Meters Per Second,
+                    //Calculate Acceleration with Following Formula :
+                    //a = (vf − vi) / Δt >> where
+                    //a = Acceleration in Meters Per Second,
                     //Vf = Final Speed in Meters Per Second,
                     //Vi = initial Speed in Meters Per Second,
                     //Δt = Acceleration time in Seconds.
-                    AccelerationTime =  (_TimerGPS_OverFlows * GpsUpdate_TimerInterval) / 1000;// Convert To Seconds.
+                    AccelerationTime =  (TimerGPS_OverFlows * GpsUpdate_TimerInterval) / 1000;// Convert To Seconds.
                     //Not Squared!
-                    BikeAcceleration = (CurrentSpeedInMps - PrevSpeedInMps) / AccelerationTime;
-                    BikeAcceleration = CurrentSpeedInMps > PrevSpeedInMps ? BikeAcceleration : -BikeAcceleration;//TODO: Remove Me.
-                    _TimerGPS_OverFlows = 0;
+                  var  TempBikeAcceleration = (CurrentSpeedInMps - PrevSpeedInMps) / AccelerationTime;
+                    BikeAcceleration = CurrentSpeedInMps > PrevSpeedInMps ? TempBikeAcceleration : -TempBikeAcceleration;//TODO: Remove Me.
+                    TimerGPS_OverFlows = 0;//Reset OverFlowCounter
+                    PrevSpeedInMps = CurrentSpeedInMps;
                 }
-            } else
+            } else//RawLocation.Speed is 0.
             {
                 BikeSpeed = 0.0d;
                 BikeAcceleration = 0.0d;
-                _TimerGPS_OverFlows = 0;
+                TimerGPS_OverFlows = 0;
             }
 
             //Update Acceleration Timer Interval. /!\
@@ -1016,6 +1065,7 @@ namespace HPISMARTUI.ViewModel
             if (Emergency)
             {
                 TimerEmergency.Enabled = true;
+                //TimerEmergency.Start();
                 if (Estate.IsMeSirenSource_Enabled)
                 {
                    await DoSirenSound(true);
@@ -1040,19 +1090,7 @@ namespace HPISMARTUI.ViewModel
             }
 
         }
-#region Brightness
-/*        public void SetBrightness(float brightness)
-        {
-            Android.Views.Window window = AndroidPlatform.CurrentActivity.Window;
-         //   var attributesWindow = new WindowManagerLayoutParams();
 
-          // attributesWindow.CopyFrom(window.Attributes);
-            window.Attributes.ScreenBrightness = brightness;
-           // attributesWindow.ScreenBrightness = brightness;
-           
-         //   window.Attributes = attributesWindow;
-        }*/
-        #endregion
         private async Task DoSirenSound(bool play)
         {
             if (play)
@@ -1069,37 +1107,123 @@ namespace HPISMARTUI.ViewModel
             }
         }
 
-        #endregion
+#endregion
 
 
-
+#region MainViewModelSpecificMethods
         void ECU_Alive()
         {
-            Log.Debug("ECU_Alive", "HelloFrom ECU");
+            Ld("HelloFrom ECU","ECU_Alive" );
             _settingsService.IS_ECU_ALive = true;
         }
 
-
-        //Location
-
-        static async void DisplayMessage(string message, string title = "Note", string ok = "OK")
+        /// <summary>
+        /// Display Modal Alert To User.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="title">(Optional)</param>
+        /// <param name="ok">(Optional)</param>
+        /// <returns></returns>
+        static async Task DisplayMessage(string message, string title = "Note", string ok = "OK")
         {
             await Shell.Current.DisplayAlert(title, message, ok);
+           
         }
 
-        protected virtual async void OnAppearing()
+        /// <summary>
+        /// Write Log To ADB Trace.
+        /// </summary>
+        /// <param name="message"> message To Be Displayed.</param>
+        /// <param name="title">(Optional)Message's Tag.(Default is nameof(MainViewModel)) </param>
+        /// <param name="type">(Optional)Log Type 'e' for Error,'i' For Info, 'd'(default) For Debug</param>
+        public async void Ld(string message, string title = nameof(MainViewModel), char type = 'd')
         {
-            await Shell.Current.DisplayPromptAsync(nameof(OnAppearing), "OnAppearing", "OK");
-            Controls.ToggleFullScreenStatus();
+            switch (type)
+            {
+                case 'e'://error
+                    Log.Error(title, message);
+                    break;
+                case 'i'://info
+                    Log.Info(title, message);
+                    break;
+                case 'd'://debug
+                    Log.Debug(title, message);
+                    break;
+                case 'w':
+                    Log.Warn(title, message);
+                    break;
+            }
+
+
+            //using var stream = File.OpenWrite("HPiSmartUILog.txt");
+            var docsDirectory = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDownloads);
+            System.IO.File.WriteAllText($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt", string.IsNullOrEmpty(Logchache) ? $":{EmergencyLocation}" : $"{Logchache} \r\n :{EmergencyLocation}" );
+
+            
+            var a = System.IO.File.OpenRead($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt");
+            using StreamReader reader_1 = new StreamReader(a);
+             Logchache = await reader_1.ReadToEndAsync();
+
+        }
+
+
+        public void SetBrightness(float brightness)
+        {
+            //  Android.Views.Window window = AndroidPlatform.CurrentActivity.Window;
+            //   var attributesWindow = new WindowManagerLayoutParams();
+
+            // attributesWindow.CopyFrom(window.Attributes);
+            // window.Attributes.ScreenBrightness = brightness;
+            // attributesWindow.ScreenBrightness = brightness;
+            Ld($"Setting Brightness To {brightness}");
+            _screenBrightness.Brightness = brightness;
+            //   window.Attributes = attributesWindow;
+        }
+
+
+#endregion
+
+
+#region PageOverrides
+
+        public virtual async void OnAppearing()
+        {
+            Log.Debug(nameof(OnAppearing), "invoked");
+            //await Shell.Current.DisplayPromptAsync(nameof(OnAppearing), "OnAppearing", "OK");
+            // Controls.ToggleFullScreenStatus();
+            SetBrightness(100.0f);
+            await ALocationManager.ProcessCommand(AndroidLocationManager.LCommand.START_LISTENING);
+
+            //GPS Timer For Continous Location Update(Acceleration).
+            TimerGps ??= new System.Timers.Timer(TimeSpan.FromMilliseconds(GpsUpdate_TimerInterval));
+            TimerGps.Elapsed += TimerGps_Elapsed;
+            TimerGps.AutoReset = true;
+            TimerGps.Enabled = true;
+            //DateTimeTimer
+            TimerNow ??= new(TimeSpan.FromSeconds(1));
+            TimerNow.Elapsed += TimerNowElapsed;
+            TimerNow.AutoReset = true;
+            TimerNow.Enabled = true;
+            //EmergencyTimer
+            TimerEmergency ??= new System.Timers.Timer(TimeSpan.FromSeconds(TemergencyInterval));
+            TimerEmergency.Elapsed += TimerEmergency_Elapsed;
+            TimerEmergency.Enabled = false;
         }
 
         public virtual async void OnDisappearing()
         {
-            await Shell.Current.DisplayPromptAsync(nameof(OnDisappearing), "OnDisappearing", "OK");
+            Log.Debug(nameof(OnDisappearing), "invoked");
+           // await Shell.Current.DisplayPromptAsync(nameof(OnDisappearing), "OnDisappearing", "OK");
             await ALocationManager.ProcessCommand(AndroidLocationManager.LCommand.STOP_LISTENING);
-
+            TimerGps?.Stop();
+           // TimerGps?.Dispose();
+            TimerNow?.Stop();
+          //  TimerNow?.Dispose();
+            //
+            TimerEmergency?.Stop();
+          //  TimerEmergency?.Dispose();
         }
-
+#endregion
 
 
 

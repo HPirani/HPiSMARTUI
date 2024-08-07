@@ -48,7 +48,10 @@ namespace HPISMARTUI.Services
         int HornKeyDebounceDelay{get; set;}
         int RPMreadingInterval{get;set;}
         //App
+        double Trip{get;set;}
         int GPSUpdateInterval{get; set;}
+        int GPSLocationAccuracy{get; set;}
+        int GPSLocationRequestInterval{get; set;}
         bool IS_ECU_ALive{ get;set;}
     }
 }
