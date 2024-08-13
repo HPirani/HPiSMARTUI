@@ -8,7 +8,7 @@
 **                                                                               **
 ** Created in sat 1403/02/025 18:40 PM By Hosein Pirani                          **
 **                                                                               **
-** Modified In sat 1403/05/17 07:40 PM To 20:05 by me.                           **
+** Modified In wed 1403/05/17 07:40 PM To 20:05 by me.                           **
 ** : Settings Added, Emergency Improved, Major Fixes.                            **
 ** TODO: Test All Methods.                                                       **
 ** TODO:                                                                         **
@@ -33,6 +33,8 @@ using System.Threading.Tasks;
 
 using Android.App;
 using Android.Content.Res;
+
+
 
 //using Android.Locations;
 using Android.Util;
@@ -86,6 +88,13 @@ namespace HPISMARTUI.Services
         int gPSRequestinterval;
         public bool IsListening => Geolocation.IsListeningForeground;
         public bool IsNotListening => !IsListening;
+
+        public string Logchache
+        {
+            get;
+            private set;
+        }
+
         ////////////////////////////////////////////
         //Bike Speed Retrived From GPS;
         //Send To UI via WeakReferenceMessenger.Or Directly Via Xaml Binding.
@@ -116,7 +125,7 @@ namespace HPISMARTUI.Services
                          StartListening();
                     } else
                     {
-                        Log.Debug("ALocationCommandParser", "Im Just Listening...");
+                        Ld( "Im Just Listening...","ALocationCommandParser");
                     }
                     
                     break;
@@ -130,7 +139,7 @@ namespace HPISMARTUI.Services
                 default:
                     break;
             }
-            Log.Debug("ALocationManager", "Messenger: Received Location Message: " + command.ToString());
+            Ld( $"Messenger: Received Location Message: {command}"  ,"Get_CurrentLocation");
         }
 
 #endregion
@@ -164,14 +173,14 @@ namespace HPISMARTUI.Services
 
 
                     var request = new GeolocationRequest(SingleRequestAccuracy);
-                    Log.Debug("ALocationManager", "get_CurrentLocation requested.");
+                    Ld( "get_CurrentLocation requested.", "Get_CurrentLocation");
 
                     cts = new CancellationTokenSource();
                     var location = await Geolocation.GetLocationAsync(request, cts.Token);
                     if (location is null)
                     {
                         
-                        Log.Debug("ALocationManager", $"Can't Get Location With {SingleRequestAccuracy}.");
+                        Ld( $"Can't Get Location With {SingleRequestAccuracy}.","Get_CurrentLocation");
                         SingleRequestAccuracy = SingleRequestAccuracy switch
                         {//Try All Modes
                             GeolocationAccuracy.Default => GeolocationAccuracy.Lowest,
@@ -184,8 +193,8 @@ namespace HPISMARTUI.Services
                         };
                     } else//Located Successfully So Break.
                     {
-                        Log.Debug("ALocationManager", $"Latitude:  {location.Latitude}");
-                        Log.Debug("ALocationManager", $"Longitude: {location.Longitude}");
+                        Ld( $"Latitude:  {location.Latitude}","Get_CurrentLocation");
+                        Ld( $"Longitude: {location.Longitude}","Get_CurrentLocation");
                         CurrentLocation = FormatLocation(location);
                         break;
                         
@@ -196,7 +205,7 @@ namespace HPISMARTUI.Services
             catch (Exception ex)
             {
                 CurrentLocation = FormatLocation(null, ex);
-                Log.Debug("ALocationManager ", "get_CurrentLocation exeption: " + ex.Message);
+                Ld( "get_CurrentLocation exeption: " + ex.Message);
                 return LResult.FailedDueError;
              
             }
@@ -234,7 +243,7 @@ namespace HPISMARTUI.Services
                 var success = await Geolocation.StartListeningForegroundAsync(request);
 
                  
-              Log.Debug("ALocationListener", success ? "Started listening for foreground location updates" : "Couldn't start listening");
+              Ld(success ? "Started listening for foreground location updates" : "Couldn't start listening", "ALocationListener");
                
             }
             catch (Exception ex)
@@ -258,17 +267,19 @@ namespace HPISMARTUI.Services
             RawLocation = e.Location;
             CurrentLocation = FormatLocation(e.Location);
             //Send RawLocation To MainViewModel.
-            Log.Debug("ALocationListener", CurrentLocation);
+            Ld( CurrentLocation,"ALocationListener");
             //If Settings Were Changed.
             if ((_settingsService.GPSLocationRequestInterval != GPSRequestinterval) || (_settingsService.GPSLocationAccuracy != GPSLocationRequestAccuracy ))
             {
-                Log.Debug("ALocationListener", $"Settings Changed : Accuracy {(GeolocationAccuracy)GPSLocationRequestAccuracy} , Interval {GPSRequestinterval} To : newAccuracy: {(GeolocationAccuracy)_settingsService.GPSLocationAccuracy} , newInterval: {_settingsService.GPSLocationRequestInterval}");
+                Ld( $"Settings Changed : Accuracy {(GeolocationAccuracy)GPSLocationRequestAccuracy} , Interval {GPSRequestinterval} To : newAccuracy: {(GeolocationAccuracy)_settingsService.GPSLocationAccuracy} , newInterval: {_settingsService.GPSLocationRequestInterval}","ALocationListener");
                 StopListening();
                 Task.Delay(GPSRequestinterval);//Wait For Stop Listening. TODO: TEST IT.
                 GPSRequestinterval = _settingsService.GPSLocationRequestInterval;
                 GPSLocationRequestAccuracy = _settingsService.GPSLocationAccuracy;
                 StartListening();
             }
+
+
         }
 
      public void StopListening()
@@ -279,7 +290,7 @@ namespace HPISMARTUI.Services
                     cts.Cancel();
                 Geolocation.LocationChanged -= Geolocation_LocationChanged;
                 Geolocation.StopListeningForeground();
-                Log.Debug("ALocationListener", "Stopped listening for foreground location updates");
+                Ld( "Stopped listening for foreground location updates","ALocationListener");
             }
             catch (Exception ex)
             {
@@ -296,10 +307,10 @@ namespace HPISMARTUI.Services
         {
             if (location == null)
             {
-                Log.Debug("ALocationManager: ", $"null: {ex.Message}");
+                Ld( $"null: {ex.Message}");
                 return "Error";
             }
-            Log.Debug("ALocationManager: ", "formatingData...");
+            Ld("formatingData...", "ALocationManager:");
             StringBuilder stringBuilder = new();
             stringBuilder.Append("Latitude: ");
             stringBuilder.Append(location.Latitude);
@@ -317,7 +328,7 @@ namespace HPISMARTUI.Services
             stringBuilder.Append((location.Course.HasValue ? location.Course.Value.ToString() : notAvailable));
             stringBuilder.Append(" , Speed: ");
 
-     if (location.Speed.HasValue)
+            if (location.Speed.HasValue)
             {
                 // speed_MetersPerHours = speed_MetersPerMinute * 60.0f;
                 //BikeSpeed = speed_MetersPerHours  / 1000.0f; // divide to 1000 (Meters Per KM)
@@ -330,11 +341,45 @@ namespace HPISMARTUI.Services
             stringBuilder.Append(" , Date: ");
             stringBuilder.Append(location.Timestamp.LocalDateTime.ToString());
             stringBuilder.Append(" , IsMock: ");
-            stringBuilder.Append((location.IsFromMockProvider ? "Yes." : "No." ));
-      
-       
-         return stringBuilder.ToString();
+            stringBuilder.Append((location.IsFromMockProvider ? "Yes." : "No."));
+
+
+            return stringBuilder.ToString();
         }
+
+#region Logger
+
+        public async void Ld(string message, string title = "ALocationManager", char type = 'd')
+        {
+            switch (type)
+            {
+                case 'e'://error
+                    Log.Error(title, message);
+                    break;
+                case 'i'://info
+                    Log.Info(title, message);
+                    break;
+                case 'd'://debug
+                    Log.Debug(title, message);
+                    break;
+                case 'w':
+                    Log.Warn(title, message);
+                    break;
+            }
+
+
+            //using var stream = File.OpenWrite("HPiSmartUILog.txt");
+            var docsDirectory = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDownloads);
+            System.IO.File.WriteAllText($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt", string.IsNullOrEmpty(Logchache) ? $":{CurrentLocation}" : $"{Logchache} \r\n :{CurrentLocation}");
+
+
+            var a = System.IO.File.OpenRead($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt");
+            using StreamReader reader_1 = new StreamReader(a);
+            Logchache = await reader_1.ReadToEndAsync();
+
+        }
+
+#endregion
 
 
     }

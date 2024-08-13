@@ -7,8 +7,8 @@
 ** Main Page ViewModel.                                                          **
 ** Used For Communicate   Between UI and BackEnd...                              **
 ** Created in sat 1403/01/025 18:40 PM By Hosein Pirani                          **
-**  Modified In sat 1403/05/09 16:00 PM To 20:00 By Me.                          **
-**  : Minor Fixes...                                                             **
+**  Modified In wed 1403/05/17 16:00 PM To 20:45 By Me.                          **
+**  : Major Fixes...                                                             **
 **                                                                               **
 ** TODO:Test Trip Meter For Bike Speed.                                          **
 **     :Complete Siren Player.                                                   **
@@ -990,13 +990,14 @@ namespace HPISMARTUI.ViewModel
                 BikeSpeed = CurrentSpeedInMps * 3.6d; // Equal With: speed_MetersPerMinute * 60 / 1000 or(
                                                       // speed in meters per second * 60 * 60 / 1000) = Speed in KM/H.
                 //Calculate Trip(Travelled Distance).
-                if (BikeSpeed >= 2)//MoreThan 2KM/H For Resolve GPS ERRORs.
+                if (BikeSpeed >= 2)//MoreThan 1KM/H For Resolve GPS ERRORs.
                 {
                     //Calculate The Trip
-                    TempTrip +=  CurrentSpeedInMps / GpsUpdate_TimerInterval ;// TODO TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    TempTrip +=  CurrentSpeedInMps / (GpsUpdate_TimerInterval / 1000);//Convert To seconds. TODO TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     if (TempTrip >= 1.0d)
                     {//Add One Meter To Trip.
-                        DisplayTrip += TempTrip / 0.01d;//Divide By 0.01(Hundredth) TODO: TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                       
+                        DisplayTrip += TempTrip / 0.01d;//Divide By 0.01(Hundredth) FOr Prevent DisplayTrip From OverFlow. TODO: TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         TempTrip = 0.0d;
                         _settingsService.Trip = DisplayTrip;//Write Settings To Disk.
                           

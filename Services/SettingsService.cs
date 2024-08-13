@@ -4,14 +4,14 @@
 ** ********************************************************************************
 ** this code is part of HPiSMARTUI.                                              **  
 ** Description:                                                                  **
-** SettingItems Service                                                             **
+** SettingItems Service                                                          **
 **                                                                               **
 ** Created in sat 1403/03/026 14:40 PM By Hosein Pirani                          **
 **                                                                               **
-** Modified In sun 1403/03/28 20:00 PM To 21:30 by me.                           **
-** : Write To ECU Added                                                          **
-** TODO: Complete and test Methods.                                             **
-** TODO: Get Default SettingItems From ECU.                                          **
+** Modified In wed 1403/05/17 18:00 PM To 19:30 by me.                           **
+** : GPS Options  Added                                                          **
+** TODO: Complete and test Methods.                                              **
+** TODO: Get Default SettingItems From ECU.                                      **
 ** ..                                                                            **
 ** ...                                                                           **
 ** And  LOT OF CODE @_@                                                          **
