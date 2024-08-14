@@ -63,7 +63,7 @@ namespace HPISMARTUI.Services
         //App
         public double Trip
         {
-            get => Preferences.Get(nameof(Trip),DefaultTrip);
+            get => Preferences.Get(nameof(Trip), DefaultTrip);
             set
             {
                 Log.Debug(nameof(Trip), $"Writing {value} .");

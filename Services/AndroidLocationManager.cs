@@ -6,10 +6,10 @@
 ** Description:                                                                  **
 **                                                                               **
 **                                                                               **
-** Created in sat 1403/02/025 18:40 PM By Hosein Pirani                          **
+** Created in sat 1403/02/25 6:40 PM By Hosein Pirani                            **
 **                                                                               **
-** Modified In wed 1403/05/17 07:40 PM To 20:05 by me.                           **
-** : Settings Added, Emergency Improved, Major Fixes.                            **
+** Modified In Wed 1403/05/24 04:40 PM To 19:15 by me.                           **
+** : TimerReset Added, Major Fixes.                                              **
 ** TODO: Test All Methods.                                                       **
 ** TODO:                                                                         **
 ** ..                                                                            **
@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 using Android.App;
 using Android.Content.Res;
@@ -74,7 +75,7 @@ namespace HPISMARTUI.Services
 
 #endregion
 
-#region Constructor
+#region GlobalOptions
         readonly ISettingsService _settingsService;
         GeolocationAccuracy SingleRequestAccuracy = GeolocationAccuracy.Best;
         readonly string notAvailable = "not available";
@@ -88,7 +89,8 @@ namespace HPISMARTUI.Services
         int gPSRequestinterval;
         public bool IsListening => Geolocation.IsListeningForeground;
         public bool IsNotListening => !IsListening;
-
+        System.Timers.Timer TimerReset;//Timer For Check the Location Update.
+        bool WatchdogFlag = false;
         public string Logchache
         {
             get;
@@ -101,14 +103,21 @@ namespace HPISMARTUI.Services
         [ObservableProperty]
         private static double bikeSpeed  = 999.999d;
 
-        
-        // private double speed_MetersPerHours;
+#endregion
+
+
+ #region Constructor_Distructor       
 
         public AndroidLocationManager(ISettingsService settingsService)
         {
             _settingsService = settingsService;
             GPSLocationRequestAccuracy = _settingsService.GPSLocationAccuracy;
             GPSRequestinterval = _settingsService.GPSLocationRequestInterval;
+        }
+        ~AndroidLocationManager()
+        {
+            TimerReset.Enabled=false;
+            TimerReset?.Dispose();
         }
 
 #endregion
@@ -122,7 +131,12 @@ namespace HPISMARTUI.Services
                 case LCommand.START_LISTENING:
                     if (IsNotListening)
                     {
-                         StartListening();
+                        StartListening();
+                        //Create Timer.
+                        TimerReset = new System.Timers.Timer(TimeSpan.FromSeconds(3));
+                        TimerReset.Elapsed += OnTimerReset;
+                        TimerReset.AutoReset = false;
+                        TimerReset.Enabled = false;
                     } else
                     {
                         Ld( "Im Just Listening...","ALocationCommandParser");
@@ -131,6 +145,8 @@ namespace HPISMARTUI.Services
                     break;
                 case LCommand.STOP_LISTENING:
                     StopListening();
+                    //StopTimer.
+                    TimerReset.Enabled = false;
                     break;
                 case LCommand.GET_LAST_LOCATION:
                         await GetDeviceLocation();
@@ -139,12 +155,13 @@ namespace HPISMARTUI.Services
                 default:
                     break;
             }
-            Ld( $"Messenger: Received Location Message: {command}"  ,"Get_CurrentLocation");
+            Ld( $"Messenger: Received Location Message: {command}"  , "ProcessCommand");
         }
 
-#endregion
+        #endregion
 
 
+#region Methods
         private async Task<LResult> Get_LastLocation()
         {
             try
@@ -169,8 +186,6 @@ namespace HPISMARTUI.Services
                 
                 for (var i = 0; i <= 5; i++)
                 {
-
-
 
                     var request = new GeolocationRequest(SingleRequestAccuracy);
                     Ld( "get_CurrentLocation requested.", "Get_CurrentLocation");
@@ -264,10 +279,19 @@ namespace HPISMARTUI.Services
        /// <param name="e"></param>
         void Geolocation_LocationChanged(object sender, GeolocationLocationChangedEventArgs e)
         {
+            if (TimerReset.Enabled)
+            {
+                Ld("Disabling Timer.");
+                TimerReset.Enabled = false;
+            }else
+            {
+                Ld("Enabling Timer.");
+                TimerReset.Enabled = true;
+            }
             RawLocation = e.Location;
             CurrentLocation = FormatLocation(e.Location);
             //Send RawLocation To MainViewModel.
-            Ld( CurrentLocation,"ALocationListener");
+            Ld( CurrentLocation, "GeolocChanged:");
             //If Settings Were Changed.
             if ((_settingsService.GPSLocationRequestInterval != GPSRequestinterval) || (_settingsService.GPSLocationAccuracy != GPSLocationRequestAccuracy ))
             {
@@ -284,6 +308,9 @@ namespace HPISMARTUI.Services
 
      public void StopListening()
         {
+            //Stop Timer
+            TimerReset.Enabled = false;
+            
             try
             {
                 if (cts != null && !cts.IsCancellationRequested)
@@ -346,6 +373,21 @@ namespace HPISMARTUI.Services
 
             return stringBuilder.ToString();
         }
+        #endregion
+
+
+#region Timers
+
+        //Watchdog For Location Change. If Location were Not Changed More Than 3 Seconds it Meant Bike is Not Moving. So... 
+      void OnTimerReset(object sender, System.Timers.ElapsedEventArgs e)
+        {
+         RawLocation.Speed = 0.0d;
+         TimerReset.Enabled = false;
+            Ld("TimerResetTimedOut.", "TimerReset@ALocationManager");
+        }
+
+#endregion
+
 
 #region Logger
 
@@ -369,12 +411,12 @@ namespace HPISMARTUI.Services
 
 
             //using var stream = File.OpenWrite("HPiSmartUILog.txt");
-            var docsDirectory = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDownloads);
-            System.IO.File.WriteAllText($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt", string.IsNullOrEmpty(Logchache) ? $":{CurrentLocation}" : $"{Logchache} \r\n :{CurrentLocation}");
+            var docsDirectory = Android.OS.Environment.ExternalStorageDirectory;
+            File.WriteAllText($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt", string.IsNullOrEmpty(Logchache) ? $":{CurrentLocation}" : $"{Logchache} \r\n :{CurrentLocation}");
 
 
-            var a = System.IO.File.OpenRead($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt");
-            using StreamReader reader_1 = new StreamReader(a);
+            var a = File.OpenRead($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt");
+            using StreamReader reader_1 = new(a);
             Logchache = await reader_1.ReadToEndAsync();
 
         }

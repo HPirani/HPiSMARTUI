@@ -529,6 +529,24 @@
                 Text="{Binding BikeSpeed,StringFormat='{0:F0}'}"
                 TranslationX="-0"
                 TranslationY="-0" />
+<!--AccelerationLabel-->
+            <Label
+                Margin="00,00,00,20"
+                Grid.Row="8"
+                Grid.Column="5"
+                WidthRequest="250"
+                HeightRequest="250"
+                FontSize="30"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                VerticalTextAlignment="Center"
+                MaximumWidthRequest="100"
+                FontFamily="Coulson-Condensed"
+                LineHeight="0.6"
+                
+                LineBreakMode="WordWrap"
+                Text="{Binding BikeAcceleration,StringFormat='{0:F1}M/S' }"
+                />
             
 <!--Fuel Gauge-->
             <!--fuel BG-->
@@ -608,7 +626,7 @@
                 TranslationX="-0"
                 FontFamily="OpenDisplay"
                 TextColor="AliceBlue"
-                Text="{Binding DisplayTrip,StringFormat='{0:F2}'}"/>
+                Text="{Binding DisplayTrip,StringFormat='{0:F3}'}"/>
  <!--Date-->
             <Label
                 Margin="-100, -60, -60, -10"

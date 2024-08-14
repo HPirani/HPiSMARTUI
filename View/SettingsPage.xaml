@@ -504,7 +504,8 @@
                             <Picker
                                 Grid.Row="3"
                                 Grid.ColumnSpan="2"
-                                Grid.Column="2"
+                                Grid.Column="1"
+                                TextColor="Black"
                                 HorizontalOptions="CenterAndExpand"
                                 SelectedIndex="{Binding CurrentHornMode,Mode=TwoWay}">
                                 <Picker.Items>
@@ -793,6 +794,7 @@
                                 Grid.ColumnSpan="2"
                                 Grid.Column="2"
                                 HorizontalOptions="Center"
+                                TextColor="Black"
                                 SelectedIndex="{Binding GpsLocationAccuracy,Mode=TwoWay}">
                                 <Picker.Items>
                                     <x:String>Default</x:String>

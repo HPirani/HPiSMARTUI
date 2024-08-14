@@ -6,9 +6,9 @@
 ** Description:                                                                  **
 ** Main Page ViewModel.                                                          **
 ** Used For Communicate   Between UI and BackEnd...                              **
-** Created in sat 1403/01/025 18:40 PM By Hosein Pirani                          **
-**  Modified In wed 1403/05/17 16:00 PM To 20:45 By Me.                          **
-**  : Major Fixes...                                                             **
+** Created in sat 1403/01/025 6:40 PM By Hosein Pirani                           **
+**  Modified In wed 1403/05/24 4:00 PM To 19:45 By Me.                           **
+**  : GPS,Trip,Acceleration,... Minor Fixes...                                   **
 **                                                                               **
 ** TODO:Test Trip Meter For Bike Speed.                                          **
 **     :Complete Siren Player.                                                   **
@@ -104,7 +104,7 @@ namespace HPISMARTUI.ViewModel
 #region GlobalOptions
         public IScreenBrightness _screenBrightness;
         public ISettingsService _settingsService;
-
+        
         [ObservableProperty]
         ENGINEstate estate = new();
          AndroidLocationManager ALocationManager;
@@ -148,13 +148,13 @@ namespace HPISMARTUI.ViewModel
         private int _TimerGPS_OverFlows; // OverFlow Counter For Acceleration. //TODO Fix It!
         private System.Timers.Timer TimerGps;
         [ObservableProperty]
-        private double currentSpeedInMps;//For Acceleration  
+        private  decimal currentSpeedInMps;//For Acceleration  
         [ObservableProperty]
-        private double prevSpeedInMps;//For Acceleration
+        private decimal prevSpeedInMps;//For Acceleration
         [ObservableProperty]
-        private int accelerationTime;//For Acceleration
+        private decimal accelerationTime;//For Acceleration
         [ObservableProperty]
-        private double tempTrip;//Store Temporary Trip Value Until 1 meter.
+        private decimal tempTrip;//Store Temporary Trip Value Until 1 meter.
         [ObservableProperty]
         private string emergencyLocation;
         //Test
@@ -176,11 +176,11 @@ namespace HPISMARTUI.ViewModel
         [ObservableProperty]
         private string timeMinuteNow;
         [ObservableProperty]
-        private double bikeSpeed=0.0d;
+        private decimal bikeSpeed =0.0m;
         [ObservableProperty]
-        private double displayTrip = 12345678.90d;
+        private decimal displayTrip = 12345678.90m;
         [ObservableProperty]
-        private double bikeAcceleration=0.0d;
+        private decimal bikeAcceleration =0.0m;
         [ObservableProperty]
         private string displayBatteryInfo ="12.2V 99%"; //Display Battery Voltage And Level.
         [ObservableProperty]
@@ -252,7 +252,7 @@ namespace HPISMARTUI.ViewModel
 
             GpsUpdate_TimerInterval = _settingsService.GPSUpdateInterval;// TODO: TEST It
             Ld($"GPSUpdate Interval: {GpsUpdate_TimerInterval} .");
-            DisplayTrip = _settingsService.Trip; // TODO: TEST It
+            DisplayTrip = (decimal)_settingsService.Trip; // TODO: TEST It
             Ld($"Saved Trip: {DisplayTrip} .");
             //Emergency Call To Owner.
             TimerEmergency = new System.Timers.Timer(TimeSpan.FromSeconds(TemergencyInterval));
@@ -657,9 +657,10 @@ namespace HPISMARTUI.ViewModel
                 }
 
 
-     
 
 
+                DisplayTrip = 0;
+                _settingsService.Trip = 0;
                 
 
                   await DisplayMessage(action,"AutoStart Result");
@@ -965,7 +966,8 @@ namespace HPISMARTUI.ViewModel
         /// </summary>
         private void TimerGps_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-             RawLocation = ALocationManager.RawLocation;//Update Location.
+            TimerGPS_OverFlows++;//we use Counter for this timer to Calculate Trip And Acceleration. 
+            RawLocation = ALocationManager.RawLocation;//Update Location.
 
             if (ALocationManager.CurrentLocation.Equals("Error"))
             {
@@ -980,32 +982,33 @@ namespace HPISMARTUI.ViewModel
                 Flag++;
                 Ld(EmergencyLocation, "VM.Timer");
             }
+
             //Calculate Speed.
             if (RawLocation.Speed.HasValue)
             {
-                    //var  speed_MetersPerMinute = RawLocation.Speed.Value * 60.0d;
-                    // speed_MetersPerHours = speed_MetersPerMinute * 60.0f;
-                    //BikeSpeed = speed_MetersPerHours  / 1000.0f; // divide to 1000 (Meters Per KM)
-                    CurrentSpeedInMps = RawLocation.Speed.Value;
-                BikeSpeed = CurrentSpeedInMps * 3.6d; // Equal With: speed_MetersPerMinute * 60 / 1000 or(
-                                                      // speed in meters per second * 60 * 60 / 1000) = Speed in KM/H.
+                    
+                    
+                    
+                    CurrentSpeedInMps = (decimal)RawLocation.Speed.Value;
+                BikeSpeed = CurrentSpeedInMps * 3.6m; // Equal With: speed_MetersPerMinute * 60 / 1000 or(
+                // speed in meters per second * 60 * 60 / 1000) = Speed in KM/H.
+
                 //Calculate Trip(Travelled Distance).
                 if (BikeSpeed >= 2)//MoreThan 1KM/H For Resolve GPS ERRORs.
                 {
-                    //Calculate The Trip
-                    TempTrip +=  CurrentSpeedInMps / (GpsUpdate_TimerInterval / 1000);//Convert To seconds. TODO TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    if (TempTrip >= 1.0d)
-                    {//Add One Meter To Trip.
-                       
-                        DisplayTrip += TempTrip / 0.01d;//Divide By 0.01(Hundredth) FOr Prevent DisplayTrip From OverFlow. TODO: TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        TempTrip = 0.0d;
-                        _settingsService.Trip = DisplayTrip;//Write Settings To Disk.
-                          
-                    }
-                }
-                TimerGPS_OverFlows++;
 
+                    //Calculate The Trip With Following Formula: {d = S(avg) × t} where
+                    //d: Travelled Distance(Trip) According To S(avg)and t , d should be in MPS or KM/H or MPH.
+                    //S(avg):Average Speed in MPS or KM/H or MPH.
+                    //t: Time in Seconds Or Minutes Or Hours.
+                        TempTrip = CurrentSpeedInMps / (GpsUpdate_TimerInterval / 1000.0m) ;//TODO TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+                        DisplayTrip += (TempTrip * 0.001m);//Divide By 0.01(Thousandth) For Prevent DisplayTrip From OverFlow. TODO: TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        TempTrip = 0.0m;
+                        _settingsService.Trip = (double)DisplayTrip;//Write Settings To Disk.
+                          
                 //Acceleration
+                 if (PrevSpeedInMps == 0) PrevSpeedInMps = CurrentSpeedInMps;
+
                 // if Current Speed Increased Or Decreased
                 if (CurrentSpeedInMps != PrevSpeedInMps)
                 {
@@ -1015,24 +1018,28 @@ namespace HPISMARTUI.ViewModel
                     //Vf = Final Speed in Meters Per Second,
                     //Vi = initial Speed in Meters Per Second,
                     //Δt = Acceleration time in Seconds.
-                    AccelerationTime =  (TimerGPS_OverFlows * GpsUpdate_TimerInterval) / 1000;// Convert To Seconds.
+                    AccelerationTime =  (TimerGPS_OverFlows * GpsUpdate_TimerInterval) * 0.001m;//Divide By 1000 for Convert To Seconds.
                     //Not Squared!
                   var  TempBikeAcceleration = (CurrentSpeedInMps - PrevSpeedInMps) / AccelerationTime;
                     BikeAcceleration = CurrentSpeedInMps > PrevSpeedInMps ? TempBikeAcceleration : -TempBikeAcceleration;//TODO: Remove Me.
                     TimerGPS_OverFlows = 0;//Reset OverFlowCounter
                     PrevSpeedInMps = CurrentSpeedInMps;
                 }
+            }
             } else//RawLocation.Speed is 0.
             {
-                BikeSpeed = 0.0d;
-                BikeAcceleration = 0.0d;
+                BikeSpeed = 0.0m;
+                BikeAcceleration = 0.0m;
                 TimerGPS_OverFlows = 0;
+                PrevSpeedInMps = 0;
             }
 
             //Update Acceleration Timer Interval. /!\
             if(_settingsService.GPSUpdateInterval != GpsUpdate_TimerInterval) GpsUpdate_TimerInterval = _settingsService.GPSUpdateInterval;
 
         }
+
+        //Current Date And Time In Persian
         private void TimerNowElapsed(object sender,System.Timers.ElapsedEventArgs e)
         {
             
@@ -1096,15 +1103,14 @@ namespace HPISMARTUI.ViewModel
         {
             if (play)
             {
-                SirenPlayer = audioManager.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("Alarm.mp3"));                
+                SirenPlayer ??= audioManager.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("Alarm.mp3"));                
                 SirenPlayer.Play();
             } else
             {
-                if (SirenPlayer is not null)
-                {
-                    SirenPlayer.Stop();
-                    SirenPlayer.Dispose();
-                }
+                
+                    SirenPlayer?.Stop();
+                    SirenPlayer?.Dispose();
+                
             }
         }
 
@@ -1155,14 +1161,11 @@ namespace HPISMARTUI.ViewModel
                     break;
             }
 
-
             //using var stream = File.OpenWrite("HPiSmartUILog.txt");
-            var docsDirectory = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDownloads);
-            System.IO.File.WriteAllText($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt", string.IsNullOrEmpty(Logchache) ? $":{EmergencyLocation}" : $"{Logchache} \r\n :{EmergencyLocation}" );
-
-            
+            var docsDirectory = Android.OS.Environment.ExternalStorageDirectory;
+            System.IO.File.WriteAllText($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt", string.IsNullOrEmpty(Logchache) ? $"vm:{EmergencyLocation}" : $"{Logchache} \r\n vm:{EmergencyLocation}" );
             var a = System.IO.File.OpenRead($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt");
-            using StreamReader reader_1 = new StreamReader(a);
+            using StreamReader reader_1 = new(a);
              Logchache = await reader_1.ReadToEndAsync();
 
         }
