@@ -10,7 +10,6 @@ using Hoho.Android.UsbSerial.Driver;
 using Hoho.Android.UsbSerial.Extensions;
 using Hoho.Android.UsbSerial.Util;
 using HPISMARTUI.Model;
-//using MauiUsbSerialForAndroid.Model;
 using Org.Xmlpull.V1.Sax2;
 using System;
 using System.Collections.Generic;
