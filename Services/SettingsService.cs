@@ -60,6 +60,7 @@ namespace HPISMARTUI.Services
         private const int DefaultGPSLocationAccuracy = 0;
         private const int DefaultGPSLocationRequestInterval = 500;
         private const bool DefaultECU_waked = false;
+        private const int DefaultTimerResetInterval = 3;
         //App
         public double Trip
         {
@@ -68,6 +69,15 @@ namespace HPISMARTUI.Services
             {
                 Log.Debug(nameof(Trip), $"Writing {value} .");
                 Preferences.Set(nameof(Trip), value);
+            }
+        }
+        public int TimerResetInterval
+        {
+            get => Preferences.Get(nameof(TimerResetInterval), DefaultTimerResetInterval);
+            set
+            {
+                Log.Debug(nameof(TimerResetInterval), $"Writing {value} .");
+                Preferences.Set(nameof(TimerResetInterval), value);
             }
         }
         public int GPSUpdateInterval

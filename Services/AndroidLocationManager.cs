@@ -8,8 +8,8 @@
 **                                                                               **
 ** Created in sat 1403/02/25 6:40 PM By Hosein Pirani                            **
 **                                                                               **
-** Modified In Wed 1403/05/24 04:40 PM To 19:15 by me.                           **
-** : TimerReset Added, Major Fixes.                                              **
+** Modified In Wed 1403/05/31 02:45 PM To 19:15 by me.                           **
+** : TimerReset_Interval Added, Minor Fixes.                                     **
 ** TODO: Test All Methods.                                                       **
 ** TODO:                                                                         **
 ** ..                                                                            **
@@ -90,7 +90,8 @@ namespace HPISMARTUI.Services
         public bool IsListening => Geolocation.IsListeningForeground;
         public bool IsNotListening => !IsListening;
         System.Timers.Timer TimerReset;//Timer For Check the Location Update.
-        bool WatchdogFlag = false;
+        [ObservableProperty]
+        private int timerResetInterval = 3;//Interval in Seconds.
         public string Logchache
         {
             get;
@@ -106,13 +107,14 @@ namespace HPISMARTUI.Services
 #endregion
 
 
- #region Constructor_Distructor       
+#region Constructor_Distructor       
 
         public AndroidLocationManager(ISettingsService settingsService)
         {
             _settingsService = settingsService;
             GPSLocationRequestAccuracy = _settingsService.GPSLocationAccuracy;
             GPSRequestinterval = _settingsService.GPSLocationRequestInterval;
+            TimerResetInterval = _settingsService.TimerResetInterval;
         }
         ~AndroidLocationManager()
         {
@@ -133,7 +135,7 @@ namespace HPISMARTUI.Services
                     {
                         StartListening();
                         //Create Timer.
-                        TimerReset = new System.Timers.Timer(TimeSpan.FromSeconds(3));
+                        TimerReset = new System.Timers.Timer(TimeSpan.FromSeconds(TimerResetInterval));
                         TimerReset.Elapsed += OnTimerReset;
                         TimerReset.AutoReset = false;
                         TimerReset.Enabled = false;
@@ -300,6 +302,7 @@ namespace HPISMARTUI.Services
                 Task.Delay(GPSRequestinterval);//Wait For Stop Listening. TODO: TEST IT.
                 GPSRequestinterval = _settingsService.GPSLocationRequestInterval;
                 GPSLocationRequestAccuracy = _settingsService.GPSLocationAccuracy;
+                TimerResetInterval = _settingsService.TimerResetInterval;
                 StartListening();
             }
 
@@ -409,15 +412,21 @@ namespace HPISMARTUI.Services
                     break;
             }
 
+            try
+            {
 
-            //using var stream = File.OpenWrite("HPiSmartUILog.txt");
-            var docsDirectory = Android.OS.Environment.ExternalStorageDirectory;
-            File.WriteAllText($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt", string.IsNullOrEmpty(Logchache) ? $":{CurrentLocation}" : $"{Logchache} \r\n :{CurrentLocation}");
+                //using var stream = File.OpenWrite("HPiSmartUILog.txt");
+                var docsDirectory = Android.OS.Environment.ExternalStorageDirectory;
+                File.WriteAllText($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt", string.IsNullOrEmpty(Logchache) ? $":{CurrentLocation}" : $"{Logchache} \r\n :{CurrentLocation}");
 
 
-            var a = File.OpenRead($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt");
-            using StreamReader reader_1 = new(a);
-            Logchache = await reader_1.ReadToEndAsync();
+                var a = File.OpenRead($"{docsDirectory.AbsoluteFile.Path}/HPlog.txt");
+                using StreamReader reader_1 = new(a);
+                Logchache = await reader_1.ReadToEndAsync();
+            }catch (Exception ex)
+            {
+                Log.Error("Ld Error", $"{ex.Message}, {ex.StackTrace}, {ex.InnerException}");
+            }
 
         }
 

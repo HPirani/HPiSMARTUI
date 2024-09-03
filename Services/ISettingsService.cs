@@ -6,10 +6,10 @@
 ** Description:                                                                  **
 **                                                                               **
 **                                                                               **
-** Created in sat 1403/03/026 13:40 PM By Hosein Pirani                          **
+** Created in sat 1403/03/026 1:40 PM By Hosein Pirani                           **
 **                                                                               **
-** Modified In sat 1403/04/30 10:40 AM To 11:15 by me.                           **
-** : RPMReadingInterval Added, Some Minor Fixes.                                 **
+** Modified In sat 1403/05/31 2:45 PM To 3:00PM by me.                           **
+** : TimerResetInterval Added, .                                                 **
 ** TODO:                                                                         **
 ** TODO:                                                                         **
 ** ..                                                                            **
@@ -50,6 +50,7 @@ namespace HPISMARTUI.Services
         //App
         double Trip{get;set;}
         int GPSUpdateInterval{get; set;}
+        int TimerResetInterval{get; set;}
         int GPSLocationAccuracy{get; set;}
         int GPSLocationRequestInterval{get; set;}
         bool IS_ECU_ALive{ get;set;}

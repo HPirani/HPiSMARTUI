@@ -511,7 +511,8 @@
                     FontSize="52"
                      ScaleY="0.9"
                      FontAttributes="Bold"
-                    Text="{Binding Value ,Source={x:Reference RPMgauge}}"
+                     
+                    Text="{Binding DisplayEngineRPM}"
                  />
 <!--KMH String-->
             <Label
@@ -567,7 +568,7 @@
                 
                 WidthRequest="170"
                 HeightRequest="170"
-                Value="{Binding Value, Source={x:Reference RPMgauge}}"
+                Value="{Binding DisplayFuelLevel}"
                 StartAngle="145.0"
                 SweepAngle="135.0"
                 GaugeWidth="28.0"

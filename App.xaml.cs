@@ -1,4 +1,5 @@
-﻿namespace HPISMARTUI
+﻿
+namespace HPISMARTUI
     {
     public partial class App : Application
         {
@@ -8,9 +9,10 @@
 
             MainPage = new AppShell();
             
-                
-          
-            
+
+
+
         }
+       // protected override Window CreateWindow(IActivationState activationState) => base.CreateWindow(activationState);
         }
     }

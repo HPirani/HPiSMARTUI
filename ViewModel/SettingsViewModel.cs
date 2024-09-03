@@ -75,6 +75,8 @@ namespace HPISMARTUI.ViewModel
         public string UI_GPSLocationAccuracyDescription => "Select GPS Data Accuracy.";
         public string UI_GPSLocationRequestIntervalName => "GPS LocationRequest Interval";
         public string UI_GPSLocationRequestIntervalDescription => "Set GPSLocation Request Interval in MilliSeconds.Bellow 1 Second May Not Work.";
+        public string UI_TimerResetIntervalName => "GPS Speed ResetTimer Interval";
+        public string UI_TimerResetIntervalDescription => "Set InterVal Of Reset(DisplaySpeed) Timer When No LocationUpdate Were Comed. etc when Bike Stops or weak GPS Signal. ";
         //Minimum & Maximum Values.
         //ECU
         public int Ux_MinimumAllowedMinServoAngle => 0;
@@ -96,6 +98,8 @@ namespace HPISMARTUI.ViewModel
         public int Ux_MaximumAllowedGPSInterval => 60000;
         public int Ux_MinimumAllowedGPSRequestInterval => 100;
         public int Ux_MaximumAllowedGPSRequestInterval => 5000;
+        public int Ux_MinimumAllowedTimerReset => 1;
+        public int Ux_MaximumAllowedTimerReset => 60;
 
         //Values.
         [ObservableProperty]
@@ -122,6 +126,10 @@ namespace HPISMARTUI.ViewModel
         private int gpsLocationAccuracy;
         [ObservableProperty]
         private int gpsRequestInterval;
+        [ObservableProperty]
+        private int timerResetInterval;
+
+
 #endregion
    
         public SettingsViewModel(ISettingsService settingsService)
@@ -148,6 +156,7 @@ namespace HPISMARTUI.ViewModel
             GPSUpdateInterval   = _SettingsService.GPSUpdateInterval;
             GpsLocationAccuracy = _SettingsService.GPSLocationAccuracy;
             GpsRequestInterval  = _SettingsService.GPSLocationRequestInterval; 
+            TimerResetInterval  = _SettingsService.TimerResetInterval;
         }
 
 
@@ -176,6 +185,7 @@ namespace HPISMARTUI.ViewModel
                 _SettingsService.GPSUpdateInterval          = GPSUpdateInterval;
                 _SettingsService.GPSLocationAccuracy        = GpsLocationAccuracy;
                 _SettingsService.GPSLocationRequestInterval = GpsRequestInterval;
+                _SettingsService.TimerResetInterval         = TimerResetInterval;
         } 
 
 

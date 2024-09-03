@@ -7,8 +7,8 @@
 ** Main Page ViewModel.                                                          **
 ** Used For Communicate   Between UI and BackEnd...                              **
 ** Created in sat 1403/01/025 6:40 PM By Hosein Pirani                           **
-**  Modified In wed 1403/05/24 4:00 PM To 19:45 By Me.                           **
-**  : GPS,Trip,Acceleration,... Minor Fixes...                                   **
+**  Modified In wed 1403/05/31 3:30 PM To 19:45 By Me.                           **
+**  : Minor Fix in Trip and Acceleration,...                                     **
 **                                                                               **
 ** TODO:Test Trip Meter For Bike Speed.                                          **
 **     :Complete Siren Player.                                                   **
@@ -104,7 +104,7 @@ namespace HPISMARTUI.ViewModel
 #region GlobalOptions
         public IScreenBrightness _screenBrightness;
         public ISettingsService _settingsService;
-        
+        public AndroidTTsService _ttsService;
         [ObservableProperty]
         ENGINEstate estate = new();
          AndroidLocationManager ALocationManager;
@@ -242,14 +242,18 @@ namespace HPISMARTUI.ViewModel
 
 #region Constructor
 
-        public MainViewModel(IScreenBrightness screenBrightness, ISettingsService settingsService,AndroidLocationManager androidLocationManager)
+        public MainViewModel(IScreenBrightness screenBrightness, ISettingsService settingsService,AndroidLocationManager androidLocationManager,AndroidTTsService androidTTsService)
         {
-            ALocationManager = androidLocationManager;
+            
             _screenBrightness = screenBrightness;
-            _settingsService = settingsService;
-            Brightness = _screenBrightness.Brightness;
-            // _screenBrightness.Brightness = 100.0f;
+            _settingsService  = settingsService;
+            ALocationManager  = androidLocationManager;
+            _ttsService       = androidTTsService;
 
+            Brightness = _screenBrightness.Brightness;
+
+            //-------------------------------------------
+            //Timers
             GpsUpdate_TimerInterval = _settingsService.GPSUpdateInterval;// TODO: TEST It
             Ld($"GPSUpdate Interval: {GpsUpdate_TimerInterval} .");
             DisplayTrip = (decimal)_settingsService.Trip; // TODO: TEST It
@@ -961,9 +965,9 @@ namespace HPISMARTUI.ViewModel
        EmergencyMessageSent = true; 
         }
        
-        /// <summary>
-        /// Timer For GPS Location Updates. Currently Used For Acceleration Calculation.
-        /// </summary>
+       /// <summary>
+       /// Timer For GPS Location Updates. Currently Used For Acceleration Calculation.
+       /// </summary>
         private void TimerGps_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             TimerGPS_OverFlows++;//we use Counter for this timer to Calculate Trip And Acceleration. 
@@ -1001,13 +1005,13 @@ namespace HPISMARTUI.ViewModel
                     //d: Travelled Distance(Trip) According To S(avg)and t , d should be in MPS or KM/H or MPH.
                     //S(avg):Average Speed in MPS or KM/H or MPH.
                     //t: Time in Seconds Or Minutes Or Hours.
-                        TempTrip = CurrentSpeedInMps / (GpsUpdate_TimerInterval / 1000.0m) ;//TODO TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+                        TempTrip = CurrentSpeedInMps / (GpsUpdate_TimerInterval * 0.001m) ;//TODO TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
                         DisplayTrip += (TempTrip * 0.001m);//Divide By 0.01(Thousandth) For Prevent DisplayTrip From OverFlow. TODO: TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         TempTrip = 0.0m;
                         _settingsService.Trip = (double)DisplayTrip;//Write Settings To Disk.
                           
                 //Acceleration
-                 if (PrevSpeedInMps == 0) PrevSpeedInMps = CurrentSpeedInMps;
+                 if ((PrevSpeedInMps == 0) && CurrentSpeedInMps > 0) PrevSpeedInMps = CurrentSpeedInMps;
 
                 // if Current Speed Increased Or Decreased
                 if (CurrentSpeedInMps != PrevSpeedInMps)
@@ -1056,6 +1060,21 @@ namespace HPISMARTUI.ViewModel
             stringBuilder.Append('\n');
             stringBuilder.Append(DateTime.Now.Minute);
             TimeNow = stringBuilder.ToString();
+            //---------------------
+            /* //Update Trip And Acceleration
+            if (BikeSpeed >= 2)
+            {
+                TempTrip = CurrentSpeedInMps / (GpsUpdate_TimerInterval * 0.001m);//TODO TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+                DisplayTrip += (TempTrip * 0.001m);//Divide By 0.001(Thousandth) For Prevent DisplayTrip From OverFlow. TODO: TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                TempTrip = 0.0m;
+                _settingsService.Trip = (double)DisplayTrip;//Write Settings To Disk.
+            } else//RawLocation.Speed is 0.
+            {
+                BikeSpeed = 0.0m;
+                BikeAcceleration = 0.0m;
+                TimerGPS_OverFlows = 0;
+                PrevSpeedInMps = 0;
+            } */
         }
 
 #endregion
@@ -1212,6 +1231,9 @@ namespace HPISMARTUI.ViewModel
             TimerEmergency ??= new System.Timers.Timer(TimeSpan.FromSeconds(TemergencyInterval));
             TimerEmergency.Elapsed += TimerEmergency_Elapsed;
             TimerEmergency.Enabled = false;
+            //------------------------------------
+            //TTS
+            await _ttsService.StartListening();
         }
 
         public virtual async void OnDisappearing()
@@ -1225,7 +1247,10 @@ namespace HPISMARTUI.ViewModel
           //  TimerNow?.Dispose();
             //
             TimerEmergency?.Stop();
-          //  TimerEmergency?.Dispose();
+            //  TimerEmergency?.Dispose();
+            //---------------------------------------------
+            //TTS
+            await _ttsService.StopListening();
         }
 #endregion
 
