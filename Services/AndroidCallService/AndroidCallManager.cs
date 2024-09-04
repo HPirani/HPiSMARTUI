@@ -66,6 +66,7 @@ namespace HPISMARTUI.Services.AndroidCallService
             telecomCall.UnregisterCallback(_callback);
             }
 
+#warning This Method will Not Work On Android 11 and above. We should Use RoleManager Instead Of This. 
         private void offerReplacingDefaultDialer()
         {
 
