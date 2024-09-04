@@ -6,11 +6,11 @@
 ** Description:                                                                  **
 **                                                                               **
 **                                                                               **
-** Created in sat 1403/02/25 6:40 PM By Hosein Pirani                            **
+** Created in sat 1403/06/14 9:23 PM By Hosein Pirani                            **
 **                                                                               **
-** Modified In Wed 1403/05/31 02:45 PM To  7:15 by me.                           **
-** :                            Minor Fixes.                                     **
-** TODO: Test All Methods.                                                       **
+** Modified In Wed 1403/06/14 09:45 PM To  10:00 by me.                          **
+** :  First Implementation.                                                      **
+** TODO:Complete  Methods.                                                       **
 ** TODO:                                                                         **
 ** ..                                                                            **
 ** ...                                                                           **
@@ -25,74 +25,39 @@
 
 
 
-
-
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
-using Android.OS;
-using Android.Content;
-using Android.Net;
-using Android.Support;
+
 using Android.Telecom;
-using Android.Text;
-using Java.Lang;
-using Microsoft.Maui.Controls.PlatformConfiguration;
-using Android.Runtime;
-using static Android.Telecom.Call;
-using Java.Util;
-using static HPISMARTUI.Services.AndroidCallManager;
-using System.Reflection.Metadata;
-using AndroidX.Core.Telephony;
-using Android.Telephony;
-using Android.Provider;
-using Android.Media.Metrics;
-using System.Reflection.Emit;
-using Android.Util;
-using Android.Nfc;
-using SkiaSharp;
-using Uri = Android.Net.Uri;
-using Android.Accounts;
-using Android.Bluetooth;
-using static HPISMARTUI.Services.SmsManagerTestService;
 
-
-namespace HPISMARTUI.Services
-{
-    internal class AndroidCallManager
+namespace HPISMARTUI.Services.AndroidCallService
     {
-       public Call telecomCall;
-        public Callback _callback;
-        private static TelecomManager _instance;
-        private InCallService _inCallService;
-        Context context;
-        
-
-        public enum DialerCallState
+    internal class OngoingCall
         {
 
-            BLOCKED,
-            DISCONNECTED,
-            CONFERENCED
-        };
+        private Callback callback;
+      public  BehaviorSubject<CallState> state = new(CallState.Disconnected);
+       public Call call;//?
+        public OngoingCall(Callback _callback)
+            {
+            callback = _callback;
+            
+            
+            }
 
-        public AndroidCallManager(Call call, TelecomManager instance)
+        void answer()
+            {
+            call?.Answer(VideoProfileState.AudioOnly);
+            
+            }
 
-        {
-            telecomCall = call;
-            _instance = instance;
-            telecomCall.RegisterCallback(_callback);
-
-
-
+        void hangup()
+            {
+            call?.Disconnect();
+            }
         }
-
-
-
-   
     }
-}
-

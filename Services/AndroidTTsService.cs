@@ -31,12 +31,12 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Maui.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System.Globalization;
-using System.Collections.ObjectModel;
 using Android.Util;
 using HPISMARTUI.ViewModel;
 
@@ -103,7 +103,7 @@ namespace HPISMARTUI.Services
 //
 #endregion
  //
-        //------------------------------------------------
+        //------------------------------------------------//
 #region SpeechToText
         //Speech To Text Service.
 
@@ -195,7 +195,7 @@ namespace HPISMARTUI.Services
                 case 'd'://debug
                     Log.Debug(title, message);
                     break;
-                case 'w':
+                case 'w'://Warning
                     Log.Warn(title, message);
                     break;
             }
