@@ -6,7 +6,7 @@
 ** Description:                                                                  **
 ** Float To IntConverter.                                                        **
 **                                                                               **
-** Created in sat 1403/04/02 17:00 PM By Hosein Pirani                           **
+** Created in sat 1403/04/02  5:00 PM By Hosein Pirani                           **
 **                                                                               **
 ** Modified In xxx 1403/0x/xx 00:00 PM To 00:00 by me.                           **
 ** :                                                                             **
@@ -14,10 +14,10 @@
 ** TODO:                                                                         **
 ** ..                                                                            **
 ** ...                                                                           **
-** And  LOT OF CODE @_@                                                          **
-** .....                                                                         **  
-** ........                                                                      **
-** ...........                                                                   **
+** And CODE                                                                      **
+** ..... More Code                                                               **  
+** ........ Code                                                                 **
+** ...........  #_#                                                              **
 ** ...............                                                               **
  *********************************************************************************/
 

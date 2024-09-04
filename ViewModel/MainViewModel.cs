@@ -7,7 +7,7 @@
 ** Main Page ViewModel.                                                          **
 ** Used For Communicate   Between UI and BackEnd...                              **
 ** Created in sat 1403/01/025 6:40 PM By Hosein Pirani                           **
-**  Modified In wed 1403/05/31 3:30 PM To 19:45 By Me.                           **
+**  Modified In wed 1403/05/31 3:30 PM To  7:45 PM By Me.                        **
 **  : Minor Fix in Trip and Acceleration,...                                     **
 **                                                                               **
 ** TODO:Test Trip Meter For Bike Speed.                                          **
@@ -18,12 +18,15 @@
 ** TODO: Add Text To Speech Ability For Talking With Rider,USE AI!               **
 ** IMPORTANT: MAKE EMERGENCY Timer Public!!!!                                    **
 ** Inject VM IN Other Classes                                                    **  
-**                                                                               **
-**  And  LOT OF CODE @_@                                                         **
-**  ...                                                                          **
+** ...                                                                           **
+** And CODE                                                                      **
+** ..... More Code                                                               **  
+** ........ Code                                                                 **
+** ...........  #_#                                                              **
+** ...............                                                               **
  *********************************************************************************/
 
-#if !NET8_0_OR_GREATER 
+#if !NET8_0_OR_GREATER
 #error Please Upgrade This Project To Net8 and upper For GPSListener And More Features!.
 #endif
 

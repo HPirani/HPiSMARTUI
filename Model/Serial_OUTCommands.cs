@@ -8,16 +8,16 @@
 **                                                                               **
 ** Created in sat 1403/01/025 18:40 PM By Hosein Pirani                          **
 **                                                                               **
-** Modified In sun 1403/01/26 16:00 PM To 20:05 by me.                           **
+** Modified In sun 1403/01/26  4:00 PM To  8:05 by me.                           **
 ** : Splash Video Added.                                                         **
 ** TODO: Complete Serial Functions.                                              **
 ** TODO:  & Fix It's Position                                                    **
 ** ..                                                                            **
 ** ...                                                                           **
-** And  LOT OF CODE @_@                                                          **
-** .....                                                                         **  
-** ........                                                                      **
-** ...........                                                                   **
+** And CODE                                                                      **
+** ..... More Code                                                               **  
+** ........ Code                                                                 **
+** ...........  #_#                                                              **
 ** ...............                                                               **
  *********************************************************************************/
 

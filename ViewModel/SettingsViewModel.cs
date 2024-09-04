@@ -6,18 +6,18 @@
 ** Description:                                                                  **
 ** SettingItems ViewModel                                                        **
 **                                                                               **
-** Created in sat 1403/03/026 15:40 PM By Hosein Pirani                          **
+** Created in sat 1403/03/026  3:40 PM By Hosein Pirani                          **
 **                                                                               **
-** Modified In wed 1403/05/17 16:00 PM To 20:05 by me.                           **
+** Modified In wed 1403/05/17  4:00 PM To  8:05 by me.                           **
 ** :                                                                             **
 ** TODO: Complete Bindings.                                                      **
 ** TODO:  Create Event To Command Behavior For Writing SettingItems To ECU!!!    **
 ** TODO: Add Validator.                                                          **
 ** ...                                                                           **
-** And  LOT OF CODE @_@                                                          **
-** .....                                                                         **  
-** ........                                                                      **
-** ...........                                                                   **
+** And CODE                                                                      **
+** ..... More Code                                                               **  
+** ........ Code                                                                 **
+** ...........  #_#                                                              **
 ** ...............                                                               **
  *********************************************************************************/
 

@@ -1,4 +1,4 @@
-﻿
+﻿ 
 using CommunityToolkit.Maui;
 
 using HPiCircularGauge;

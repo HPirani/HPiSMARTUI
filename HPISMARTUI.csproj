@@ -96,8 +96,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="Ref\epj.RadialDial.Maui\epj.RadialDial.Maui.csproj" />
-	  <ProjectReference Include="Ref\HPiCircularGauge\HPiCircularGauge.csproj" />
+	  <ProjectReference Include="..\src\epj.RadialDial.Maui\epj.RadialDial.Maui.csproj" />
+	  <ProjectReference Include="..\src\HPiCircularGauge\HPiCircularGauge.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

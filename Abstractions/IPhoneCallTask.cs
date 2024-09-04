@@ -31,7 +31,7 @@ namespace HPISMARTUI.Abstractions
         /// on some platforms</param>
         /// <remarks>
         ///     On WinPhone platform, the ID_CAP_PHONEDIALER capability needs to be
-        ///     added to the application manifest
+        ///     added to the application manifest 
         /// </remarks>
         void MakePhoneCall(string number, string name = null,string CountryISO = "IR",bool AutoDial = true);
         

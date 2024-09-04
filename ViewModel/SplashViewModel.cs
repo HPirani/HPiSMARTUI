@@ -6,18 +6,18 @@
 ** Description:                                                                  **
 ** Splash Screen ViewModel.                                                      **
 **                                                                               **
-** Created in sat 1403/02/025 13:40 PM By Hosein Pirani                          **
+** Created in sat 1403/02/025 1:40 PM By Hosein Pirani                           **
 **                                                                               **
-** Modified In sun 1403/03/01 16:00 PM To 20:05 by me.                           **
+** Modified In sun 1403/03/01  4:00 PM To  8:05 PM by me.                        **
 ** : Splash Video Added.                                                         **
 ** TODO: Find Besmellah Label And Fade it.                                       **
 ** TODO:  & Fix It's Position                                                    **
 ** ..                                                                            **
 ** ...                                                                           **
-** And  LOT OF CODE @_@                                                          **
-** .....                                                                         **  
-** ........                                                                      **
-** ...........                                                                   **
+** And CODE                                                                      **
+** ..... More Code                                                               **  
+** ........ Code                                                                 **
+** ...........  #_#                                                              **
 ** ...............                                                               **
  *********************************************************************************/
 

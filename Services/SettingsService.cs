@@ -6,18 +6,18 @@
 ** Description:                                                                  **
 ** SettingItems Service                                                          **
 **                                                                               **
-** Created in sat 1403/03/026 14:40 PM By Hosein Pirani                          **
+** Created in sat 1403/03/026  2:40 PM By Hosein Pirani                          **
 **                                                                               **
-** Modified In wed 1403/05/17 18:00 PM To 19:30 by me.                           **
+** Modified In wed 1403/05/17  6:00 PM To  7:30 PM by me.                        **
 ** : GPS Options  Added                                                          **
 ** TODO: Complete and test Methods.                                              **
 ** TODO: Get Default SettingItems From ECU.                                      **
 ** ..                                                                            **
 ** ...                                                                           **
-** And  LOT OF CODE @_@                                                          **
-** .....                                                                         **  
-** ........                                                                      **
-** ...........                                                                   **
+** And CODE                                                                      **
+** ..... More Code                                                               **  
+** ........ Code                                                                 **
+** ...........  #_#                                                              **
 ** ...............                                                               **
  *********************************************************************************/
 

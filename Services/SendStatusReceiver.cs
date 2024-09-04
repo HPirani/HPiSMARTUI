@@ -1,4 +1,36 @@
-﻿using System;
+﻿/**********************************************************************************
+**                             HPi Source File                                   **
+**    Copyright (C) 2020-2024 HPiStudio. Allrights Reserved.                     **
+** ********************************************************************************
+** this code is part of HPiSMARTUi                                               **  
+** Description:                                                                  **
+**                                                                               **
+**                                                                               **
+** Created in sat 1403/02/25 6:40 PM By Hosein Pirani                            **
+**                                                                               **
+** Modified In Wed 1403/05/31 02:45 PM To  7:15 by me.                           **
+** :                            Minor Fixes.                                     **
+** TODO: Test All Methods.                                                       **
+** TODO:                                                                         **
+** ..                                                                            **
+** ...                                                                           **
+** And CODE                                                                      **
+** ..... More Code                                                               **  
+** ........ Code                                                                 **
+** ...........  #_#                                                              **
+** ...............                                                               **
+ *********************************************************************************/
+
+
+
+ 
+
+
+
+
+
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +45,7 @@ using AndroidX.Core.Content;
 
 namespace HPISMARTUI.Services
 {
-   // [Service]
+   // [Service] 
     [BroadcastReceiver(Name = "ir.hpi.hpismartui.SendStatusReceiver", Enabled = true, Exported = true /*,DirectBootAware = true*/)]
     [IntentFilter(new[] { "ir.hpi.hpismartui.message_sent_action" })]
     public class SendStatusReceiver : BroadcastReceiver

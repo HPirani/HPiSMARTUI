@@ -15,7 +15,7 @@ using Kotlin;
 using HPISMARTUI.ViewModel;
 using AndroidX.Core.Content;
 using Android.Views;
-//using var vm =Microsoft.Maui.  ;
+//using var vm =Microsoft.Maui. ;
 //using Android.Telephony.Ims;
 //using Android.Telephony.Gsm;
 namespace HPISMARTUI

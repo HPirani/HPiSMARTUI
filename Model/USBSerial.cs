@@ -9,7 +9,7 @@ using Android.Hardware.Usb;
 
 namespace HPISMARTUI.Model
 {
-  
+    
 
     public class UsbDeviceInfo
     {

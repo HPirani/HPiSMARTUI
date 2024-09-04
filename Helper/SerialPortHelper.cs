@@ -1,4 +1,40 @@
-﻿using Android.App;
+﻿/**********************************************************************************
+**                             HPi Source File                                   **
+**    Copyright (C) 2020-2024 HPiStudio. Allrights Reserved.                     **
+** ********************************************************************************
+** this code is part of HPiSMARTUi                                               **  
+** Description:                                                                  **
+**                                                                               **
+**                                                                               **
+** Created in sat 1403/02/25 6:40 PM By Hosein Pirani                            **
+**                                                                               **
+** Modified In Wed 1403/05/31 02:45 PM To  7:15 by me.                           **
+** :                            Minor Fixes.                                     **
+** TODO: Test All Methods.                                                       **
+** TODO:                                                                         **
+** ..                                                                            **
+** ...                                                                           **
+** And CODE                                                                      **
+** ..... More Code                                                               **  
+** ........ Code                                                                 **
+** ...........  #_#                                                              **
+** ...............                                                               **
+ *********************************************************************************/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+using Android.App;
 using Android.Content;
 using Android.Hardware;
 using Android.Hardware.Usb;
@@ -22,7 +58,7 @@ namespace HPISMARTUI.Helper
 {
 
     public class SerialPortHelper
-    {
+    { 
         const int WRITE_WAIT_MILLIS = 1000;
         static Context context => Android.App.Application.Context;
         static UsbManager usbManager => (UsbManager)context.GetSystemService(Context.UsbService);

@@ -8,7 +8,7 @@ namespace HPISMARTUI
             InitializeComponent();
 
             MainPage = new AppShell();
-            
+             
 
 
 

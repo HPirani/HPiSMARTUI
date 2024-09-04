@@ -7,4 +7,4 @@ namespace HPISMARTUI
         {
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
         }
-    }
+    } 

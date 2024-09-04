@@ -44,7 +44,7 @@ using Plugin.Maui.ScreenBrightness;
 namespace HPISMARTUI.View;
 
 
-//[INotifyPropertyChanged]
+//[INotifyPropertyChanged] 
 public partial class SplashPage : ContentPage 
 {
     

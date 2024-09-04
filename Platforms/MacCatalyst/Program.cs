@@ -14,4 +14,4 @@ namespace HPISMARTUI
             UIApplication.Main(args, null, typeof(AppDelegate));
             }
         }
-    }
+    } 

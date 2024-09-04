@@ -8,16 +8,16 @@
 **                                                                               **
 ** Created in sat 1403/02/25 6:40 PM By Hosein Pirani                            **
 **                                                                               **
-** Modified In Wed 1403/05/31 02:45 PM To 19:15 by me.                           **
-** : TimerReset_Interval Added, Minor Fixes.                                     **
+** Modified In Wed 1403/05/31 02:45 PM To  7:15 by me.                           **
+** :                            Minor Fixes.                                     **
 ** TODO: Test All Methods.                                                       **
 ** TODO:                                                                         **
 ** ..                                                                            **
 ** ...                                                                           **
-** And  LOT OF CODE @_@                                                          **
-** .....                                                                         **  
-** ........                                                                      **
-** ...........                                                                   **
+** And CODE                                                                      **
+** ..... More Code                                                               **  
+** ........ Code                                                                 **
+** ...........  #_#                                                              **
 ** ...............                                                               **
  *********************************************************************************/
 
