@@ -27,7 +27,7 @@
  *********************************************************************************/
 
 #if !NET8_0_OR_GREATER
-#error Please Upgrade This Project To Net8 and upper For GPSListener And More Features!.
+#warning Please Upgrade This Project To Net8 and upper For GPSListener And More Features!.
 #endif
 
 
@@ -320,7 +320,7 @@ namespace HPISMARTUI.ViewModel
         #endregion
         // //////////////////////SMS Methods
 
-#region Distructor
+#region Destructor
         ~MainViewModel()
         {
             TimerNow?.Stop();
@@ -1126,7 +1126,7 @@ namespace HPISMARTUI.ViewModel
             if (play)
             {
                 SirenPlayer ??= audioManager.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("Alarm.mp3"));                
-                SirenPlayer.Play();
+                SirenPlayer?.Play();
             } else
             {
                 
@@ -1268,7 +1268,7 @@ namespace HPISMARTUI.ViewModel
 
 
 }
-//TODO: Move It To Another File!!
+//TODO: Move Me To Another File!!
 namespace HPISMARTUI.Messages// CommunityToolkit.Mvvm.Messaging.Messages
 {
 
